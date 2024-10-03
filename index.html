@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Jigsaw Puzzle Game</title>
+    <style>
+        :root {
+            --background: #09090b;
+            --foreground: #fafafa;
+            --primary: #6366f1;
+            --primary-foreground: #fafafa;
+            --secondary: #27272a;
+            --secondary-foreground: #fafafa;
+            --border: #27272a;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        canvas {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            max-width: 100%;
+            height: auto;
+            touch-action: none; /* Prevent default touch actions */
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: var(--primary);
+        }
+        #startButton {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+        #share-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #share-link a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .timer {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .selected {
+            box-shadow: 0 0 10px 5px var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Jigsaw Puzzle Game</h1>
+        <div class="timer" id="timer">00:00</div>
+        <canvas id="puzzleCanvas" width="800" height="1200"></canvas>
+        <div class="button-group">
+            <button id="startButton">Start Game</button>
+            <button id="shuffleButton" style="display: none;">Shuffle</button>
+            <button id="previewButton" style="display: none;">Preview Image</button>
+            <button id="organizeButton" style="display: none;">Organize Pieces</button>
+        </div>
+        <div id="share-link"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('puzzleCanvas');
+        const ctx = canvas.getContext('2d');
+        const shuffleButton = document.getElementById('shuffleButton');
+        const previewButton = document.getElementById('previewButton');
+        const organizeButton = document.getElementById('organizeButton');
+        const shareLinkDiv = document.getElementById('share-link');
+        const startButton = document.getElementById('startButton');
+
+        let img = new Image();
+        img.src = 'https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png'; // Replace with your AI-generated image link
+
+        const rows = 4, cols = 6;
+        let pieces = [];
+        let pieceWidth, pieceHeight;
+
+        let selectedGroup = [];
+
+        // Initialize the puzzle pieces in a chaotic distribution
+        function initPuzzle() {
+            console.log('Initializing puzzle pieces');
+            pieces = [];
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    pieces.push({
+                        sx: col * pieceWidth,
+                        sy: row * pieceHeight,
+                        x: Math.random() * (canvas.width - pieceWidth),
+                        y: Math.random() * (canvas.height - pieceHeight),
+                        correctX: col * pieceWidth,
+                        correctY: row * pieceHeight
+                    });
+                }
+            }
+            console.log('Puzzle pieces initialized:', pieces);
+        }
+
+        // Start button event listener
+        startButton.addEventListener('click', () => {
+            console.log('Starting game');
+            initPuzzle();
+            drawPuzzle();
+            startButton.style.display = 'none';
+            shuffleButton.style.display = 'inline-block';
+            previewButton.style.display = 'inline-block';
+            organizeButton.style.display = 'inline-block';
+            startTimer();
+        });
+
+        // Load the image and initialize the puzzle
+        img.onload = function() {
+            console.log('Image loaded');
+            pieceWidth = canvas.width / cols; // Calculate the width of each puzzle piece
+            pieceHeight = canvas.height / rows; // Calculate the height of each puzzle piece
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
+        };
+
+        // Modified draw function to remove highlighting
+        function drawPuzzle() {
+            console.log('Drawing puzzle');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(piece => {
+                ctx.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.x, piece.y, pieceWidth, pieceHeight);
+            });
+            console.log('Puzzle drawn');
+        }
+
+        // Shuffle button event listener to shuffle the puzzle pieces
+        shuffleButton.addEventListener('click', () => {
+            console.log('Shuffling puzzle pieces');
+            pieces = pieces.sort(() => Math.random() - 0.5); // Shuffle the pieces array randomly
+            drawPuzzle(); // Redraw the shuffled puzzle
+        });
+
+        // Preview button functionality to show the complete image
+        previewButton.addEventListener('click', () => {
+            console.log('Previewing full image');
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
+        });
+
+        // Generate a shareable link for the current puzzle
+        function generateShareLink() {
+            console.log('Generating share link');
+            const baseUrl = window.location.href;
+            // Create a link element to share the puzzle with a friend
+            shareLinkDiv.innerHTML = `<a href="${baseUrl}" target="_blank">Share this puzzle with a friend!</a>`;
+            console.log('Share link generated:', baseUrl);
+        }
+
+        generateShareLink(); // Call the function to generate the share link
+
+        // Organize button functionality to arrange pieces around the center
+        organizeButton.addEventListener('click', () => {
+            console.log('Organizing puzzle pieces');
+            const padding = 50; // Padding around the center
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const leftBoundary = padding;
+            const rightBoundary = canvas.width - pieceWidth - padding;
+            const topBoundary = padding;
+            const bottomBoundary = canvas.height - pieceHeight - padding;
+
+            let index = 0;
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    // Skip pieces that would overlap the center area
+                    if (
+                        (col * pieceWidth + pieceWidth / 2 > centerX - pieceWidth && col * pieceWidth + pieceWidth / 2 < centerX + pieceWidth) &&
+                        (row * pieceHeight + pieceHeight / 2 > centerY - pieceHeight && row * pieceHeight + pieceHeight / 2 < centerY + pieceHeight)
+                    ) {
+                        continue;
+                    }
+                    pieces[index].x = Math.max(leftBoundary, Math.min(rightBoundary, col * pieceWidth)); // Position the piece within boundaries
+                    pieces[index].y = Math.max(topBoundary, Math.min(bottomBoundary, row * pieceHeight)); // Position the piece within boundaries
+                    index++;
+                }
+            }
+            drawPuzzle(); // Redraw the organized puzzle
+        });
+
+        // Drag and drop functionality
+        let selectedPiece = null; // Variable to store the currently selected piece
+        let offsetX = 0, offsetY = 0; // Offsets to track mouse position relative to the piece
+
+        let touchTimeout;
+        let isTouching = false;
+
+        // New function to find connected pieces
+        function findConnectedPieces(piece) {
+            let connectedGroup = [piece];
+            let newAdditions;
+            do {
+                newAdditions = [];
+                for (let groupPiece of connectedGroup) {
+                    for (let otherPiece of pieces) {
+                        if (!connectedGroup.includes(otherPiece)) {
+                            if (areConnected(groupPiece, otherPiece)) {
+                                newAdditions.push(otherPiece);
+                                // Magnetic behavior: Snap the connected piece to the correct position
+                                otherPiece.x = otherPiece.correctX + (groupPiece.x - groupPiece.correctX);
+                                otherPiece.y = otherPiece.correctY + (groupPiece.y - groupPiece.correctY);
+                            }
+                        }
+                    }
+                }
+                connectedGroup = connectedGroup.concat(newAdditions);
+            } while (newAdditions.length > 0);
+            return connectedGroup;
+        }
+
+        // New function to check if two pieces are connected
+        function areConnected(piece1, piece2) {
+            const threshold = 10; // Adjust this value for stricter or looser connections
+            const correctDx = piece1.correctX - piece2.correctX;
+            const correctDy = piece1.correctY - piece2.correctY;
+            const actualDx = piece1.x - piece2.x;
+            const actualDy = piece1.y - piece2.y;
+
+            return Math.abs(actualDx - correctDx) < threshold && Math.abs(actualDy - correctDy) < threshold;
+        }
+
+        // Modified event listeners to support both mouse and touch events
+        canvas.addEventListener('mousedown', handleStart);
+        canvas.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('mouseleave', handleEnd);
+
+        canvas.addEventListener('touchstart', handleStart);
+        canvas.addEventListener('touchmove', handleMove);
+        canvas.addEventListener('touchend', handleEnd);
+        canvas.addEventListener('touchcancel', handleEnd);
+
+        function getEventCoordinates(e) {
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                clientX: (clientX - rect.left) * scaleX,
+                clientY: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleMove(e) {
+            e.preventDefault();
+            const { clientX, clientY } = getEventCoordinates(e);
+            
+            if (selectedPiece) {
+                // Move the selected piece (and its group) directly under the finger/cursor
+                const newX = clientX - offsetX;
+                const newY = clientY - offsetY;
+                
+                // Calculate the movement delta
+                const dx = newX - selectedPiece.x;
+                const dy = newY - selectedPiece.y;
+                
+                // Move all pieces in the selected group
+                for (let groupPiece of selectedGroup) {
+                    groupPiece.x += dx;
+                    groupPiece.y += dy;
+                }
+                
+                drawPuzzle();
+                
+                // Check for new connections
+                let newGroup = findConnectedPieces(selectedPiece);
+                if (newGroup.length > selectedGroup.length) {
+                    selectedGroup = newGroup;
+                    drawPuzzle();
+                }
+            } else if (isTouching) {
+                // If we've moved significantly before the timeout, cancel the selection
+                clearTimeout(touchTimeout);
+                isTouching = false;
+            }
+        }
+
+        function handleStart(e) {
+            e.preventDefault();
+            const { clientX, clientY } = getEventCoordinates(e);
+            console.log('Start at:', clientX, clientY);
+            
+            isTouching = true;
+            
+            touchTimeout = setTimeout(() => {
+                if (isTouching) {
+                    for (let i = pieces.length - 1; i >= 0; i--) {
+                        let piece = pieces[i];
+                        if (
+                            clientX > piece.x && clientX < piece.x + pieceWidth &&
+                            clientY > piece.y && clientY < piece.y + pieceHeight
+                        ) {
+                            selectedPiece = piece;
+                            offsetX = clientX - piece.x;
+                            offsetY = clientY - piece.y;
+                            selectedGroup = findConnectedPieces(piece);
+                            console.log('Selected group:', selectedGroup);
+                            pieces = pieces.filter(p => !selectedGroup.includes(p)).concat(selectedGroup);
+                            drawPuzzle();
+                            break;
+                        }
+                    }
+                }
+            }, 100); // 100ms delay before selecting a piece
+        }
+
+        function handleEnd(e) {
+            e.preventDefault();
+            clearTimeout(touchTimeout);
+            isTouching = false;
+            
+            if (selectedPiece) {
+                console.log('End, group released:', selectedGroup);
+                snapGroup(selectedGroup);
+                drawPuzzle();
+                if (checkPuzzleSolved()) {
+                    alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
+                    stopTimer();
+                }
+            }
+            selectedPiece = null;
+            selectedGroup = [];
+        }
+
+        // Modified snap function to handle groups
+        function snapGroup(group) {
+            const snapThreshold = 20; // pixels
+            let snapped = false;
+            for (let piece of group) {
+                if (Math.abs(piece.x - piece.correctX) < snapThreshold && 
+                    Math.abs(piece.y - piece.correctY) < snapThreshold) {
+                    const dx = piece.correctX - piece.x;
+                    const dy = piece.correctY - piece.y;
+                    for (let groupPiece of group) {
+                        groupPiece.x += dx;
+                        groupPiece.y += dy;
+                    }
+                    snapped = true;
+                    break;
+                }
+            }
+            if (snapped) {
+                // After snapping, check for additional connections
+                let allConnected = findConnectedPieces(group[0]);
+                // Snap all connected pieces to their correct positions
+                for (let piece of allConnected) {
+                    piece.x = piece.correctX;
+                    piece.y = piece.correctY;
+                }
+            }
+        }
+
+        // Check if the puzzle is solved
+        function checkPuzzleSolved() {
+            const solved = pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY);
+            if (solved) {
+                stopTimer();
+                alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
+            }
+            return solved;
+        }
+
+        // Add timer functionality
+        let startTime;
+        let timerInterval;
+        const timerElement = document.getElementById('timer');
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+    </script>
+</body>
+</html>
