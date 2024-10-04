@@ -222,8 +222,7 @@
         let selectedPiece = null; // Variable to store the currently selected piece
         let offsetX = 0, offsetY = 0; // Offsets to track mouse position relative to the piece
 
-        let touchTimeout;
-        let isTouching = false;
+        let isDragging = false;
 
         // New function to find connected pieces
         function findConnectedPieces(piece) {
@@ -288,20 +287,46 @@
             };
         }
 
+        function handleStart(e) {
+            e.preventDefault();
+            const { clientX, clientY } = getEventCoordinates(e);
+            console.log('Start at:', clientX, clientY);
+            
+            for (let i = pieces.length - 1; i >= 0; i--) {
+                let piece = pieces[i];
+                if (
+                    clientX >= piece.x && clientX <= piece.x + pieceWidth &&
+                    clientY >= piece.y && clientY <= piece.y + pieceHeight
+                ) {
+                    selectedPiece = piece;
+                    // Calculate offset from the touch point to the piece's top-left corner
+                    offsetX = clientX - piece.x;
+                    offsetY = clientY - piece.y;
+                    selectedGroup = findConnectedPieces(piece);
+                    console.log('Selected group:', selectedGroup);
+                    // Move the selected group to the end of the pieces array to render on top
+                    pieces = pieces.filter(p => !selectedGroup.includes(p)).concat(selectedGroup);
+                    isDragging = true;
+                    drawPuzzle();
+                    break;
+                }
+            }
+        }
+
         function handleMove(e) {
             e.preventDefault();
+            if (!isDragging) return;
+            
             const { clientX, clientY } = getEventCoordinates(e);
             
             if (selectedPiece) {
-                // Move the selected piece (and its group) directly under the finger/cursor
+                // Calculate new position based on the original offset
                 const newX = clientX - offsetX;
                 const newY = clientY - offsetY;
                 
-                // Calculate the movement delta
                 const dx = newX - selectedPiece.x;
                 const dy = newY - selectedPiece.y;
                 
-                // Move all pieces in the selected group
                 for (let groupPiece of selectedGroup) {
                     groupPiece.x += dx;
                     groupPiece.y += dy;
@@ -309,52 +334,17 @@
                 
                 drawPuzzle();
                 
-                // Check for new connections
                 let newGroup = findConnectedPieces(selectedPiece);
                 if (newGroup.length > selectedGroup.length) {
                     selectedGroup = newGroup;
                     drawPuzzle();
                 }
-            } else if (isTouching) {
-                // If we've moved significantly before the timeout, cancel the selection
-                clearTimeout(touchTimeout);
-                isTouching = false;
             }
-        }
-
-        function handleStart(e) {
-            e.preventDefault();
-            const { clientX, clientY } = getEventCoordinates(e);
-            console.log('Start at:', clientX, clientY);
-            
-            isTouching = true;
-            
-            touchTimeout = setTimeout(() => {
-                if (isTouching) {
-                    for (let i = pieces.length - 1; i >= 0; i--) {
-                        let piece = pieces[i];
-                        if (
-                            clientX > piece.x && clientX < piece.x + pieceWidth &&
-                            clientY > piece.y && clientY < piece.y + pieceHeight
-                        ) {
-                            selectedPiece = piece;
-                            offsetX = clientX - piece.x;
-                            offsetY = clientY - piece.y;
-                            selectedGroup = findConnectedPieces(piece);
-                            console.log('Selected group:', selectedGroup);
-                            pieces = pieces.filter(p => !selectedGroup.includes(p)).concat(selectedGroup);
-                            drawPuzzle();
-                            break;
-                        }
-                    }
-                }
-            }, 100); // 100ms delay before selecting a piece
         }
 
         function handleEnd(e) {
             e.preventDefault();
-            clearTimeout(touchTimeout);
-            isTouching = false;
+            isDragging = false;
             
             if (selectedPiece) {
                 console.log('End, group released:', selectedGroup);
