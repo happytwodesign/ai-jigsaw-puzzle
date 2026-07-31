@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "name": "solved",
+  "description": "A finished board: every piece exactly at its slot, timer frozen at the completion time.",
+  "whatToTest": [
+    "fully assembled artwork renders with no visible seams",
+    "clicking any piece and releasing re-triggers the solve check (expect a single congratulations alert)",
+    "all 24 pieces form one group - dragging anywhere drags the whole board"
+  ],
+  "puzzle": {
+    "id": "crema-classic",
+    "image": "assets/puzzles/crema-swirl.svg",
+    "rows": 4,
+    "cols": 6
+  },
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "timer": {
+    "elapsedSeconds": 872,
+    "display": "14:32"
+  },
+  "stats": {
+    "movesSoFar": 61,
+    "previewUses": 2,
+    "shuffleUses": 1,
+    "organizeUses": 1
+  },
+  "expected": {
+    "solvedCount": 24,
+    "groupSizes": [
+      24
+    ],
+    "outOfBoundsPieces": []
+  },
+  "pieces": [
+    {
+      "row": 0,
+      "col": 0,
+      "sx": 0,
+      "sy": 0,
+      "correctX": 0,
+      "correctY": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 0,
+      "correctX": 133.33333333333334,
+      "correctY": 0,
+      "x": 133.33333333333334,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 0,
+      "correctX": 266.6666666666667,
+      "correctY": 0,
+      "x": 266.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "sx": 400,
+      "sy": 0,
+      "correctX": 400,
+      "correctY": 0,
+      "x": 400,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 0,
+      "correctX": 533.3333333333334,
+      "correctY": 0,
+      "x": 533.3333333333334,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 0,
+      "correctX": 666.6666666666667,
+      "correctY": 0,
+      "x": 666.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "sx": 0,
+      "sy": 300,
+      "correctX": 0,
+      "correctY": 300,
+      "x": 0,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 300,
+      "correctX": 133.33333333333334,
+      "correctY": 300,
+      "x": 133.33333333333334,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 300,
+      "correctX": 266.6666666666667,
+      "correctY": 300,
+      "x": 266.6666666666667,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "sx": 400,
+      "sy": 300,
+      "correctX": 400,
+      "correctY": 300,
+      "x": 400,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 300,
+      "correctX": 533.3333333333334,
+      "correctY": 300,
+      "x": 533.3333333333334,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 300,
+      "correctX": 666.6666666666667,
+      "correctY": 300,
+      "x": 666.6666666666667,
+      "y": 300
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "sx": 0,
+      "sy": 600,
+      "correctX": 0,
+      "correctY": 600,
+      "x": 0,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 600,
+      "correctX": 133.33333333333334,
+      "correctY": 600,
+      "x": 133.33333333333334,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 600,
+      "correctX": 266.6666666666667,
+      "correctY": 600,
+      "x": 266.6666666666667,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "sx": 400,
+      "sy": 600,
+      "correctX": 400,
+      "correctY": 600,
+      "x": 400,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 600,
+      "correctX": 533.3333333333334,
+      "correctY": 600,
+      "x": 533.3333333333334,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 600,
+      "correctX": 666.6666666666667,
+      "correctY": 600,
+      "x": 666.6666666666667,
+      "y": 600
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "sx": 0,
+      "sy": 900,
+      "correctX": 0,
+      "correctY": 900,
+      "x": 0,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 900,
+      "correctX": 133.33333333333334,
+      "correctY": 900,
+      "x": 133.33333333333334,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 900,
+      "correctX": 266.6666666666667,
+      "correctY": 900,
+      "x": 266.6666666666667,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "sx": 400,
+      "sy": 900,
+      "correctX": 400,
+      "correctY": 900,
+      "x": 400,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 900,
+      "correctX": 533.3333333333334,
+      "correctY": 900,
+      "x": 533.3333333333334,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 900,
+      "correctX": 666.6666666666667,
+      "correctY": 900,
+      "x": 666.6666666666667,
+      "y": 900
+    }
+  ]
+}

@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "name": "mid-game-clusters",
+  "description": "Five minutes in: top edge mostly solved, plus two assembled clusters (a 2x2 block and an L of three) floating away from their slots, and twelve loose pieces.",
+  "whatToTest": [
+    "grabbing any piece of the 2x2 cluster drags all four as one group",
+    "grabbing any piece of the L-cluster drags all three",
+    "dropping a cluster with any member within 20px of its slot snaps the whole cluster home",
+    "dragging a cluster within 10px offset-agreement of the solved region merges the groups (magnetic join)",
+    "loose pieces stay independent"
+  ],
+  "puzzle": {
+    "id": "crema-classic",
+    "image": "assets/puzzles/crema-swirl.svg",
+    "rows": 4,
+    "cols": 6
+  },
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "timer": {
+    "elapsedSeconds": 316,
+    "display": "05:16"
+  },
+  "stats": {
+    "movesSoFar": 38,
+    "previewUses": 1,
+    "shuffleUses": 0,
+    "organizeUses": 1
+  },
+  "expected": {
+    "solvedCount": 5,
+    "groupSizes": [
+      5,
+      4,
+      3,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "outOfBoundsPieces": []
+  },
+  "clusters": [
+    {
+      "pieces": [
+        {
+          "row": 1,
+          "col": 2
+        },
+        {
+          "row": 1,
+          "col": 3
+        },
+        {
+          "row": 2,
+          "col": 2
+        },
+        {
+          "row": 2,
+          "col": 3
+        }
+      ],
+      "offset": {
+        "x": 173.5,
+        "y": 262
+      }
+    },
+    {
+      "pieces": [
+        {
+          "row": 2,
+          "col": 0
+        },
+        {
+          "row": 3,
+          "col": 0
+        },
+        {
+          "row": 3,
+          "col": 1
+        }
+      ],
+      "offset": {
+        "x": 310,
+        "y": -405
+      }
+    }
+  ],
+  "pieces": [
+    {
+      "row": 0,
+      "col": 0,
+      "sx": 0,
+      "sy": 0,
+      "correctX": 0,
+      "correctY": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 0,
+      "correctX": 133.33333333333334,
+      "correctY": 0,
+      "x": 133.33333333333334,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 0,
+      "correctX": 266.6666666666667,
+      "correctY": 0,
+      "x": 266.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "sx": 400,
+      "sy": 0,
+      "correctX": 400,
+      "correctY": 0,
+      "x": 400,
+      "y": 0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "sx": 0,
+      "sy": 300,
+      "correctX": 0,
+      "correctY": 300,
+      "x": 0,
+      "y": 300
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 0,
+      "correctX": 533.3333333333334,
+      "correctY": 0,
+      "x": 621.1045331632097,
+      "y": 723.2505538500845
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 0,
+      "correctX": 666.6666666666667,
+      "correctY": 0,
+      "x": 231.37162796532112,
+      "y": 460.1945540634915
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 300,
+      "correctX": 133.33333333333334,
+      "correctY": 300,
+      "x": 238.5091286463042,
+      "y": 590.2042722562328
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 300,
+      "correctX": 533.3333333333334,
+      "correctY": 300,
+      "x": 212.7213596055905,
+      "y": 322.6567592471838
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 300,
+      "correctX": 666.6666666666667,
+      "correctY": 300,
+      "x": 115.47260622804363,
+      "y": 417.89384451694787
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 600,
+      "correctX": 133.33333333333334,
+      "correctY": 600,
+      "x": 388.0098207543293,
+      "y": 445.25796426460147
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 600,
+      "correctX": 533.3333333333334,
+      "correctY": 600,
+      "x": 444.2590287265678,
+      "y": 445.0194117380306
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 600,
+      "correctX": 666.6666666666667,
+      "correctY": 600,
+      "x": 150.4561665157477,
+      "y": 839.9568870663643
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 900,
+      "correctX": 266.6666666666667,
+      "correctY": 900,
+      "x": 10.711440971742073,
+      "y": 490.75685078278184
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "sx": 400,
+      "sy": 900,
+      "correctX": 400,
+      "correctY": 900,
+      "x": 384.83121106401086,
+      "y": 408.1280639860779
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 900,
+      "correctX": 533.3333333333334,
+      "correctY": 900,
+      "x": 261.80273154750466,
+      "y": 655.3266747621819
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 900,
+      "correctX": 666.6666666666667,
+      "correctY": 900,
+      "x": 295.9269348842402,
+      "y": 858.831923827529
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "sx": 0,
+      "sy": 600,
+      "correctX": 0,
+      "correctY": 600,
+      "x": 310,
+      "y": 195
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "sx": 0,
+      "sy": 900,
+      "correctX": 0,
+      "correctY": 900,
+      "x": 310,
+      "y": 495
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 900,
+      "correctX": 133.33333333333334,
+      "correctY": 900,
+      "x": 443.33333333333337,
+      "y": 495
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 300,
+      "correctX": 266.6666666666667,
+      "correctY": 300,
+      "x": 440.1666666666667,
+      "y": 562
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "sx": 400,
+      "sy": 300,
+      "correctX": 400,
+      "correctY": 300,
+      "x": 573.5,
+      "y": 562
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 600,
+      "correctX": 266.6666666666667,
+      "correctY": 600,
+      "x": 440.1666666666667,
+      "y": 862
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "sx": 400,
+      "sy": 600,
+      "correctX": 400,
+      "correctY": 600,
+      "x": 573.5,
+      "y": 862
+    }
+  ]
+}

@@ -107,11 +107,12 @@
         const startButton = document.getElementById('startButton');
 
         let img = new Image();
-        img.src = 'https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png'; // Replace with your AI-generated image link
+        const DEFAULT_IMAGE = 'https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png'; // Replace with your AI-generated image link
 
-        const rows = 4, cols = 6;
+        let rows = 4, cols = 6;
         let pieces = [];
         let pieceWidth, pieceHeight;
+        let pendingState = null; // game-state fixture waiting for the image to load
 
         let selectedGroup = [];
 
@@ -151,8 +152,30 @@
             console.log('Image loaded');
             pieceWidth = canvas.width / cols; // Calculate the width of each puzzle piece
             pieceHeight = canvas.height / rows; // Calculate the height of each puzzle piece
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
+            if (pendingState) {
+                applyPendingState();
+            } else {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
+            }
         };
+
+        img.onerror = function() {
+            console.error('Image failed to load:', img.src);
+            shareLinkDiv.innerHTML = `<p style="color:#f87171">Could not load the puzzle image:<br><code>${img.src}</code></p>`;
+        };
+
+        // Jump straight into a saved board loaded via ?state=<fixture>
+        function applyPendingState() {
+            const state = pendingState;
+            pendingState = null;
+            pieces = state.pieces.map(p => ({ ...p }));
+            startButton.style.display = 'none';
+            shuffleButton.style.display = 'inline-block';
+            previewButton.style.display = 'inline-block';
+            organizeButton.style.display = 'inline-block';
+            drawPuzzle();
+            startTimer(state.timer && state.timer.elapsedSeconds || 0);
+        }
 
         // Modified draw function to remove highlighting
         function drawPuzzle() {
@@ -387,14 +410,10 @@
             }
         }
 
-        // Check if the puzzle is solved
+        // Check if the puzzle is solved (pure check - handleEnd owns the
+        // alert and timer stop, otherwise the congratulations fires twice)
         function checkPuzzleSolved() {
-            const solved = pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY);
-            if (solved) {
-                stopTimer();
-                alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
-            }
-            return solved;
+            return pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY);
         }
 
         // Add timer functionality
@@ -402,8 +421,9 @@
         let timerInterval;
         const timerElement = document.getElementById('timer');
 
-        function startTimer() {
-            startTime = Date.now();
+        function startTimer(offsetSeconds = 0) {
+            startTime = Date.now() - offsetSeconds * 1000;
+            updateTimer();
             timerInterval = setInterval(updateTimer, 1000);
         }
 
@@ -417,6 +437,50 @@
         function stopTimer() {
             clearInterval(timerInterval);
         }
+
+        // --- Test-data / demo loader -------------------------------------
+        // ?state=<name>  resume a saved board from test-data/game-states/<name>.json
+        // ?puzzle=<id>   start a puzzle from test-data/puzzles.json
+        // ?img=<url>&rows=<n>&cols=<n>  ad-hoc overrides
+        // With no parameters the app behaves exactly as before.
+        // (Fixtures are fetched, so serve over HTTP - e.g. python3 -m http.server)
+        async function bootFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            try {
+                if (params.has('state')) {
+                    const name = params.get('state');
+                    const res = await fetch(`test-data/game-states/${name}.json`);
+                    if (!res.ok) throw new Error(`fixture "${name}" (HTTP ${res.status})`);
+                    const fixture = await res.json();
+                    rows = fixture.puzzle.rows;
+                    cols = fixture.puzzle.cols;
+                    pendingState = fixture;
+                    img.src = fixture.puzzle.image;
+                    return;
+                }
+                if (params.has('puzzle')) {
+                    const id = params.get('puzzle');
+                    const res = await fetch('test-data/puzzles.json');
+                    if (!res.ok) throw new Error(`puzzle catalog (HTTP ${res.status})`);
+                    const catalog = await res.json();
+                    const puzzle = catalog.puzzles.find(p => p.id === id);
+                    if (!puzzle) throw new Error(`unknown puzzle id "${id}"`);
+                    rows = puzzle.rows;
+                    cols = puzzle.cols;
+                    img.src = puzzle.image;
+                    return;
+                }
+                rows = parseInt(params.get('rows'), 10) || rows;
+                cols = parseInt(params.get('cols'), 10) || cols;
+                img.src = params.get('img') || DEFAULT_IMAGE;
+            } catch (err) {
+                console.error('Test-data loader:', err);
+                shareLinkDiv.innerHTML = `<p style="color:#f87171">Test-data loader: ${err.message}</p>`;
+                img.src = DEFAULT_IMAGE;
+            }
+        }
+
+        bootFromUrl();
     </script>
 </body>
 </html>

@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "description": "Puzzle catalog for the LaCrema jigsaw app. Consumed by index.html (?puzzle=<id>) and the demo launcher (demo/index.html). Difficulty combines piece count with how visually distinctive the artwork's regions are.",
+  "canvas": { "width": 800, "height": 1200 },
+  "difficultyScale": ["easy", "medium", "hard", "expert", "cruel"],
+  "puzzles": [
+    {
+      "id": "crema-classic",
+      "title": "Crema Swirl — LaCrema Classic",
+      "image": "assets/puzzles/crema-swirl.svg",
+      "rows": 4,
+      "cols": 6,
+      "pieceCount": 24,
+      "difficulty": "medium",
+      "artStyle": "warm coffee crema swirl with latte art",
+      "featured": true,
+      "notes": "Flagship demo puzzle on the app's default 4x6 grid. Self-contained artwork, works offline."
+    },
+    {
+      "id": "aurora-original-remote",
+      "title": "Aurora — Original Remote Artwork",
+      "image": "https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png",
+      "rows": 4,
+      "cols": 6,
+      "pieceCount": 24,
+      "difficulty": "medium",
+      "artStyle": "AI-generated aurora artwork (remote PNG)",
+      "requiresNetwork": true,
+      "notes": "The artwork the app originally hardcoded. Needs internet access and CDN availability - use aurora-ridge for offline or CI runs. Also exercises the remote-image code path."
+    },
+    {
+      "id": "aurora-ridge",
+      "title": "Aurora Over the Ridge",
+      "image": "assets/puzzles/aurora-ridge.svg",
+      "rows": 4,
+      "cols": 6,
+      "pieceCount": 24,
+      "difficulty": "medium",
+      "artStyle": "night sky, aurora ribbons, mountain silhouettes",
+      "notes": "Offline stand-in for the original aurora artwork. Dark regions in the sky are the tricky part."
+    },
+    {
+      "id": "kids-first-puzzle",
+      "title": "Sunny Day Friends (Kids)",
+      "image": "assets/puzzles/kids-friends.svg",
+      "rows": 2,
+      "cols": 3,
+      "pieceCount": 6,
+      "difficulty": "easy",
+      "artStyle": "bright flat shapes, thick outlines, high contrast",
+      "audience": "ages 4+",
+      "notes": "Six chunky pieces and every region is visually unique - ideal first puzzle and quick mobile demo."
+    },
+    {
+      "id": "sunset-warmup",
+      "title": "Sunset Dunes",
+      "image": "assets/puzzles/sunset-dunes.svg",
+      "rows": 3,
+      "cols": 4,
+      "pieceCount": 12,
+      "difficulty": "easy",
+      "artStyle": "layered dunes, big sun, gradient sky",
+      "notes": "Large distinct color bands make orientation obvious. Good warm-up before the 24-piece grids."
+    },
+    {
+      "id": "botanical-afternoon",
+      "title": "Botanical Afternoon",
+      "image": "assets/puzzles/botanical-lines.svg",
+      "rows": 4,
+      "cols": 6,
+      "pieceCount": 24,
+      "difficulty": "medium",
+      "artStyle": "line-art plants on cream, terracotta accents",
+      "notes": "Light background with sparse line work - moderate ambiguity in the empty regions."
+    },
+    {
+      "id": "city-nights",
+      "title": "City Nights",
+      "image": "assets/puzzles/city-lights.svg",
+      "rows": 6,
+      "cols": 9,
+      "pieceCount": 54,
+      "difficulty": "hard",
+      "artStyle": "night skyline, lit windows, water reflections",
+      "notes": "54 pieces. Window grids repeat locally but each building has its own light color."
+    },
+    {
+      "id": "terrazzo-expert",
+      "title": "Terrazzo Floor",
+      "image": "assets/puzzles/geo-terrazzo.svg",
+      "rows": 8,
+      "cols": 12,
+      "pieceCount": 96,
+      "difficulty": "expert",
+      "artStyle": "repeating terrazzo shards with a few large accents",
+      "notes": "96 pieces over a repeating pattern - many near-identical pieces. The large accent shards are the only anchors."
+    },
+    {
+      "id": "mist-cruel",
+      "title": "Morning Mist",
+      "image": "assets/puzzles/misty-gradient.svg",
+      "rows": 5,
+      "cols": 8,
+      "pieceCount": 40,
+      "difficulty": "cruel",
+      "artStyle": "low-contrast fog gradient, one tiny bird",
+      "notes": "Deliberately uniform artwork: 40 pieces that all look alike. Tests player tolerance and how much the snap/connect ergonomics help."
+    },
+    {
+      "id": "qa-minimal-2",
+      "title": "QA: Minimal 1x2",
+      "image": "assets/puzzles/sunset-dunes.svg",
+      "rows": 1,
+      "cols": 2,
+      "pieceCount": 2,
+      "difficulty": "easy",
+      "qaOnly": true,
+      "notes": "Smallest sensible grid - two full-height slabs. Smoke test for grid math and instant solves."
+    },
+    {
+      "id": "qa-single-column",
+      "title": "QA: Single Column 6x1",
+      "image": "assets/puzzles/botanical-lines.svg",
+      "rows": 6,
+      "cols": 1,
+      "pieceCount": 6,
+      "difficulty": "easy",
+      "qaOnly": true,
+      "notes": "Degenerate single-column grid (cols=1). Pieces span the full canvas width."
+    },
+    {
+      "id": "qa-stress-150",
+      "title": "QA: Stress 150 Pieces",
+      "image": "assets/puzzles/geo-terrazzo.svg",
+      "rows": 10,
+      "cols": 15,
+      "pieceCount": 150,
+      "difficulty": "expert",
+      "qaOnly": true,
+      "notes": "Performance stress: 150 pieces of 53x120 px. Watch drag frame rate - findConnectedPieces is O(n^2) per move - and Organize behavior."
+    },
+    {
+      "id": "qa-broken-image",
+      "title": "QA: Broken Image URL",
+      "image": "assets/puzzles/missing.svg",
+      "rows": 4,
+      "cols": 6,
+      "pieceCount": 24,
+      "difficulty": "medium",
+      "qaOnly": true,
+      "expectFailure": true,
+      "notes": "Image intentionally 404s. The app must show the friendly image-load error instead of hanging on a blank canvas."
+    }
+  ]
+}

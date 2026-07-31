@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1026"/>
+      <stop offset="0.55" stop-color="#14224a"/>
+      <stop offset="1" stop-color="#1b2a52"/>
+    </linearGradient>
+    <linearGradient id="ridgeA" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#182742"/>
+      <stop offset="1" stop-color="#0c1526"/>
+    </linearGradient>
+    <linearGradient id="ridgeB" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e1830"/>
+      <stop offset="1" stop-color="#070d1a"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+  <rect width="800" height="1200" fill="url(#sky)"/>
+  <!-- stars -->
+  <g fill="#e8f1ff">
+    <circle cx="62" cy="88" r="2.4"/><circle cx="180" cy="52" r="1.6"/><circle cx="298" cy="120" r="2.1"/>
+    <circle cx="410" cy="60" r="1.4"/><circle cx="520" cy="140" r="2.6"/><circle cx="628" cy="70" r="1.7"/>
+    <circle cx="736" cy="128" r="2.2"/><circle cx="96" cy="230" r="1.5"/><circle cx="240" cy="270" r="2.3"/>
+    <circle cx="372" cy="208" r="1.6"/><circle cx="486" cy="300" r="1.9"/><circle cx="606" cy="238" r="1.4"/>
+    <circle cx="714" cy="320" r="2.0"/><circle cx="150" cy="380" r="1.8"/><circle cx="330" cy="352" r="1.3"/>
+    <circle cx="452" cy="420" r="2.2"/><circle cx="580" cy="392" r="1.5"/><circle cx="60" cy="470" r="2.0"/>
+    <circle cx="700" cy="470" r="1.6"/><circle cx="260" cy="470" r="1.4"/>
+  </g>
+  <!-- moon -->
+  <circle cx="640" cy="180" r="52" fill="#f4efe0"/>
+  <circle cx="620" cy="168" r="10" fill="#ded8c4"/>
+  <circle cx="662" cy="200" r="7" fill="#ded8c4"/>
+  <circle cx="648" cy="150" r="5" fill="#e6e0cc"/>
+  <!-- aurora ribbons -->
+  <g filter="url(#soft)" opacity="0.85">
+    <path d="M -40 520 C 140 380 260 560 420 430 C 560 320 680 460 840 340 L 840 250 C 660 380 560 240 420 350 C 280 460 160 300 -40 430 Z" fill="#39e6a0" opacity="0.5"/>
+    <path d="M -40 640 C 180 520 300 680 470 560 C 620 460 720 580 840 480 L 840 420 C 700 520 600 400 460 500 C 300 620 180 460 -40 570 Z" fill="#3ec6e0" opacity="0.42"/>
+    <path d="M -40 420 C 160 300 320 440 500 330 C 640 240 740 340 840 260 L 840 210 C 720 290 640 190 500 280 C 340 390 180 250 -40 360 Z" fill="#9a6cf0" opacity="0.35"/>
+  </g>
+  <!-- ridges -->
+  <path d="M 0 760 L 130 620 L 240 730 L 360 580 L 470 710 L 600 590 L 700 690 L 800 620 L 800 1200 L 0 1200 Z" fill="url(#ridgeA)"/>
+  <path d="M 0 900 L 110 800 L 230 890 L 340 780 L 480 900 L 590 800 L 690 880 L 800 790 L 800 1200 L 0 1200 Z" fill="url(#ridgeB)"/>
+  <!-- snow caps -->
+  <path d="M 130 620 L 168 662 L 148 660 L 128 680 L 108 656 Z" fill="#cfe0f2" opacity="0.9"/>
+  <path d="M 360 580 L 402 628 L 378 624 L 356 648 L 334 620 Z" fill="#cfe0f2" opacity="0.9"/>
+  <path d="M 600 590 L 636 630 L 616 628 L 598 646 L 578 622 Z" fill="#cfe0f2" opacity="0.85"/>
+  <!-- foreground lake -->
+  <path d="M 0 1040 C 200 1010 600 1010 800 1040 L 800 1200 L 0 1200 Z" fill="#060b16"/>
+  <g stroke="#3ec6a8" stroke-width="4" opacity="0.4" fill="none">
+    <path d="M 120 1090 h 130"/><path d="M 340 1120 h 170"/><path d="M 560 1080 h 120"/>
+    <path d="M 200 1150 h 90"/><path d="M 470 1160 h 140"/>
+  </g>
+  <!-- cabin with lit window -->
+  <g>
+    <rect x="80" y="948" width="110" height="72" fill="#1d1206"/>
+    <path d="M 70 950 L 135 902 L 200 950 Z" fill="#2a1a08"/>
+    <rect x="118" y="972" width="30" height="30" fill="#ffca6b"/>
+    <rect x="160" y="978" width="16" height="42" fill="#120b04"/>
+  </g>
+</svg>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <pattern id="shards" width="200" height="200" patternUnits="userSpaceOnUse">
+      <rect width="200" height="200" fill="#efe9e1"/>
+      <polygon points="18,26 52,12 44,48" fill="#e2574c"/>
+      <polygon points="120,20 158,34 132,62" fill="#2a6f77"/>
+      <polygon points="66,70 92,58 96,92 64,96" fill="#1d3557"/>
+      <circle cx="170" cy="92" r="13" fill="#e9b44c"/>
+      <polygon points="20,120 48,112 56,142 26,152" fill="#f4a29b"/>
+      <polygon points="104,120 134,132 118,158" fill="#e9b44c"/>
+      <polygon points="156,150 186,142 190,176 160,182" fill="#e2574c"/>
+      <circle cx="44" cy="182" r="10" fill="#2a6f77"/>
+      <polygon points="88,170 112,178 100,196" fill="#1d3557"/>
+      <circle cx="146" cy="58" r="7" fill="#f4a29b"/>
+      <polygon points="10,66 26,58 30,84 8,88" fill="#8fb5a5"/>
+      <circle cx="186" cy="16" r="6" fill="#8fb5a5"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="1200" fill="url(#shards)"/>
+  <!-- large unique accent shards break the repetition -->
+  <polygon points="80,140 240,90 300,240 140,300" fill="#1d3557" opacity="0.92"/>
+  <polygon points="560,320 720,260 760,430 620,470" fill="#e2574c" opacity="0.9"/>
+  <circle cx="240" cy="640" r="110" fill="#e9b44c" opacity="0.92"/>
+  <polygon points="480,700 660,660 700,830 520,870" fill="#2a6f77" opacity="0.9"/>
+  <polygon points="120,900 300,860 340,1030 160,1080" fill="#f4a29b" opacity="0.92"/>
+  <circle cx="600" cy="1050" r="96" fill="#8fb5a5" opacity="0.92"/>
+  <polygon points="360,420 470,380 500,500 380,540" fill="#efe9e1" stroke="#1d3557" stroke-width="6"/>
+</svg>

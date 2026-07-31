@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "name": "kids-nearly-solved",
+  "description": "The 2x3 kids puzzle with five of six chunky pieces placed - one drag for a small child (or a phone demo) to win.",
+  "whatToTest": [
+    "non-default grid (2 rows x 3 cols) loads correctly from a fixture",
+    "chunky 267x600 pieces drag comfortably with touch",
+    "single drag to the bottom-right slot completes the puzzle"
+  ],
+  "puzzle": {
+    "id": "kids-first-puzzle",
+    "image": "assets/puzzles/kids-friends.svg",
+    "rows": 2,
+    "cols": 3
+  },
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "timer": {
+    "elapsedSeconds": 41,
+    "display": "00:41"
+  },
+  "stats": {
+    "movesSoFar": 6,
+    "previewUses": 0,
+    "shuffleUses": 0,
+    "organizeUses": 0
+  },
+  "expected": {
+    "solvedCount": 5,
+    "groupSizes": [
+      5,
+      1
+    ],
+    "outOfBoundsPieces": []
+  },
+  "hint": {
+    "dragPiece": {
+      "row": 1,
+      "col": 2
+    },
+    "dropAt": {
+      "x": 533.3333333333334,
+      "y": 600
+    }
+  },
+  "pieces": [
+    {
+      "row": 0,
+      "col": 0,
+      "sx": 0,
+      "sy": 0,
+      "correctX": 0,
+      "correctY": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "sx": 266.6666666666667,
+      "sy": 0,
+      "correctX": 266.6666666666667,
+      "correctY": 0,
+      "x": 266.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "sx": 533.3333333333334,
+      "sy": 0,
+      "correctX": 533.3333333333334,
+      "correctY": 0,
+      "x": 533.3333333333334,
+      "y": 0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "sx": 0,
+      "sy": 600,
+      "correctX": 0,
+      "correctY": 600,
+      "x": 0,
+      "y": 600
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "sx": 266.6666666666667,
+      "sy": 600,
+      "correctX": 266.6666666666667,
+      "correctY": 600,
+      "x": 266.6666666666667,
+      "y": 600
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "sx": 533.3333333333334,
+      "sy": 600,
+      "correctX": 533.3333333333334,
+      "correctY": 600,
+      "x": 60,
+      "y": 30
+    }
+  ]
+}

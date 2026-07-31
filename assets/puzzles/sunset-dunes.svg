@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <linearGradient id="dsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a1a4a"/>
+      <stop offset="0.35" stop-color="#93395c"/>
+      <stop offset="0.62" stop-color="#e2694f"/>
+      <stop offset="0.8" stop-color="#f9a45b"/>
+      <stop offset="1" stop-color="#ffd27a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffe9b0" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ffe9b0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1200" fill="url(#dsky)"/>
+  <circle cx="400" cy="560" r="240" fill="url(#glow)"/>
+  <circle cx="400" cy="560" r="120" fill="#ffdf8e"/>
+  <circle cx="400" cy="560" r="96" fill="#ffe9ae"/>
+  <!-- birds -->
+  <g stroke="#3a2140" stroke-width="7" fill="none" stroke-linecap="round">
+    <path d="M 180 250 C 196 238 208 238 220 250 C 232 238 244 238 260 250"/>
+    <path d="M 560 200 C 572 191 581 191 590 200 C 599 191 608 191 620 200"/>
+    <path d="M 300 150 C 310 143 317 143 324 150 C 331 143 338 143 348 150"/>
+  </g>
+  <!-- dune layers -->
+  <path d="M 0 660 C 150 610 290 700 430 660 C 570 620 690 690 800 650 L 800 1200 L 0 1200 Z" fill="#c25b3f"/>
+  <path d="M 0 780 C 180 720 340 820 520 760 C 660 715 740 790 800 760 L 800 1200 L 0 1200 Z" fill="#93395c"/>
+  <path d="M 0 900 C 160 850 360 950 540 890 C 680 845 760 910 800 880 L 800 1200 L 0 1200 Z" fill="#5f2452"/>
+  <path d="M 0 1030 C 200 980 420 1070 620 1010 C 720 980 780 1020 800 1005 L 800 1200 L 0 1200 Z" fill="#3a1740"/>
+  <!-- dune ridge highlights -->
+  <path d="M 0 660 C 150 610 290 700 430 660 C 570 620 690 690 800 650" fill="none" stroke="#ffca8a" stroke-width="6" opacity="0.7"/>
+  <path d="M 0 780 C 180 720 340 820 520 760 C 660 715 740 790 800 760" fill="none" stroke="#f08a63" stroke-width="5" opacity="0.6"/>
+  <!-- lone cactus silhouette -->
+  <g fill="#241030">
+    <rect x="132" y="960" width="26" height="150" rx="12"/>
+    <rect x="96" y="990" width="22" height="60" rx="11"/>
+    <rect x="100" y="1040" width="40" height="20" rx="10"/>
+    <rect x="166" y="1010" width="22" height="52" rx="11"/>
+    <rect x="150" y="1052" width="38" height="20" rx="10"/>
+  </g>
+  <!-- scattered desert grass -->
+  <g stroke="#241030" stroke-width="5" fill="none" stroke-linecap="round">
+    <path d="M 620 1130 c -6 -26 -2 -40 4 -52 M 630 1130 c 2 -22 8 -34 16 -44 M 612 1130 c -12 -18 -16 -30 -16 -42"/>
+    <path d="M 420 1160 c -6 -24 -2 -36 4 -46 M 430 1160 c 2 -20 8 -30 14 -38"/>
+  </g>
+</svg>

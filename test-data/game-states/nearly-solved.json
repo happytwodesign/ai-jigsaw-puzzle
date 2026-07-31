@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "name": "nearly-solved",
+  "description": "One move from victory: 23 of 24 pieces are placed; only the piece for row 2, col 3 is parked at the bottom-left. Drag it home to finish.",
+  "whatToTest": [
+    "the 30-second stakeholder demo: one drag ends the game",
+    "dropping the piece within 20px of its slot snaps it and triggers the solve alert exactly once",
+    "timer stops at the solve and the reported time reads 11:0x",
+    "while dragging, the piece magnetically merges with the solved region once within 10px offset agreement"
+  ],
+  "puzzle": {
+    "id": "crema-classic",
+    "image": "assets/puzzles/crema-swirl.svg",
+    "rows": 4,
+    "cols": 6
+  },
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "timer": {
+    "elapsedSeconds": 663,
+    "display": "11:03"
+  },
+  "stats": {
+    "movesSoFar": 52,
+    "previewUses": 2,
+    "shuffleUses": 0,
+    "organizeUses": 1
+  },
+  "expected": {
+    "solvedCount": 23,
+    "groupSizes": [
+      23,
+      1
+    ],
+    "outOfBoundsPieces": []
+  },
+  "hint": {
+    "dragPiece": {
+      "row": 2,
+      "col": 3
+    },
+    "dropAt": {
+      "x": 400,
+      "y": 600
+    }
+  },
+  "pieces": [
+    {
+      "row": 0,
+      "col": 0,
+      "sx": 0,
+      "sy": 0,
+      "correctX": 0,
+      "correctY": 0,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 0,
+      "correctX": 133.33333333333334,
+      "correctY": 0,
+      "x": 133.33333333333334,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 0,
+      "correctX": 266.6666666666667,
+      "correctY": 0,
+      "x": 266.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "sx": 400,
+      "sy": 0,
+      "correctX": 400,
+      "correctY": 0,
+      "x": 400,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 0,
+      "correctX": 533.3333333333334,
+      "correctY": 0,
+      "x": 533.3333333333334,
+      "y": 0
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 0,
+      "correctX": 666.6666666666667,
+      "correctY": 0,
+      "x": 666.6666666666667,
+      "y": 0
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "sx": 0,
+      "sy": 300,
+      "correctX": 0,
+      "correctY": 300,
+      "x": 0,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 300,
+      "correctX": 133.33333333333334,
+      "correctY": 300,
+      "x": 133.33333333333334,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 300,
+      "correctX": 266.6666666666667,
+      "correctY": 300,
+      "x": 266.6666666666667,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "sx": 400,
+      "sy": 300,
+      "correctX": 400,
+      "correctY": 300,
+      "x": 400,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 300,
+      "correctX": 533.3333333333334,
+      "correctY": 300,
+      "x": 533.3333333333334,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 300,
+      "correctX": 666.6666666666667,
+      "correctY": 300,
+      "x": 666.6666666666667,
+      "y": 300
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "sx": 0,
+      "sy": 600,
+      "correctX": 0,
+      "correctY": 600,
+      "x": 0,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 600,
+      "correctX": 133.33333333333334,
+      "correctY": 600,
+      "x": 133.33333333333334,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 600,
+      "correctX": 266.6666666666667,
+      "correctY": 600,
+      "x": 266.6666666666667,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 600,
+      "correctX": 533.3333333333334,
+      "correctY": 600,
+      "x": 533.3333333333334,
+      "y": 600
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 600,
+      "correctX": 666.6666666666667,
+      "correctY": 600,
+      "x": 666.6666666666667,
+      "y": 600
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "sx": 0,
+      "sy": 900,
+      "correctX": 0,
+      "correctY": 900,
+      "x": 0,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 900,
+      "correctX": 133.33333333333334,
+      "correctY": 900,
+      "x": 133.33333333333334,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 900,
+      "correctX": 266.6666666666667,
+      "correctY": 900,
+      "x": 266.6666666666667,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "sx": 400,
+      "sy": 900,
+      "correctX": 400,
+      "correctY": 900,
+      "x": 400,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 900,
+      "correctX": 533.3333333333334,
+      "correctY": 900,
+      "x": 533.3333333333334,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 900,
+      "correctX": 666.6666666666667,
+      "correctY": 900,
+      "x": 666.6666666666667,
+      "y": 900
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "sx": 400,
+      "sy": 600,
+      "correctX": 400,
+      "correctY": 600,
+      "x": 47.5,
+      "y": 862.25
+    }
+  ]
+}

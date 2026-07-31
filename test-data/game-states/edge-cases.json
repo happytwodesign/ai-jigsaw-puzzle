@@ -1,0 +1,406 @@
+{
+  "schemaVersion": 1,
+  "name": "edge-cases",
+  "description": "A hand-built regression board packing ten boundary conditions of the piece mechanics into one state. Each case is documented in the \"cases\" array.",
+  "whatToTest": [
+    "boundary coordinates, snap-radius edges, connect-threshold edges",
+    "z-order behavior on deep stacks",
+    "pieces dragged partially off-canvas remain usable"
+  ],
+  "puzzle": {
+    "id": "crema-classic",
+    "image": "assets/puzzles/crema-swirl.svg",
+    "rows": 4,
+    "cols": 6
+  },
+  "canvas": {
+    "width": 800,
+    "height": 1200
+  },
+  "timer": {
+    "elapsedSeconds": 222,
+    "display": "03:42"
+  },
+  "stats": {
+    "movesSoFar": 27,
+    "previewUses": 0,
+    "shuffleUses": 1,
+    "organizeUses": 0
+  },
+  "expected": {
+    "solvedCount": 0,
+    "groupSizes": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "outOfBoundsPieces": [
+      {
+        "row": 2,
+        "col": 0
+      },
+      {
+        "row": 3,
+        "col": 1
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "max-boundary",
+      "piece": {
+        "row": 0,
+        "col": 0
+      },
+      "expectation": "sits exactly at the bottom-right in-bounds limit (666.67, 900); renders fully, no clipping"
+    },
+    {
+      "id": "min-boundary",
+      "piece": {
+        "row": 3,
+        "col": 5
+      },
+      "expectation": "sits exactly at (0,0) - the top-left limit, which is also piece (0,0)'s slot; must NOT snap (its own slot is far away)"
+    },
+    {
+      "id": "snap-inside",
+      "piece": {
+        "row": 1,
+        "col": 1
+      },
+      "expectation": "is 19px right of its slot; clicking and releasing it snaps it home (threshold is strict < 20)"
+    },
+    {
+      "id": "snap-at-threshold",
+      "piece": {
+        "row": 1,
+        "col": 2
+      },
+      "expectation": "is exactly 20px below its slot; clicking and releasing must NOT snap (strict < 20)"
+    },
+    {
+      "id": "connect-pair",
+      "pieces": [
+        {
+          "row": 2,
+          "col": 3
+        },
+        {
+          "row": 2,
+          "col": 4
+        }
+      ],
+      "expectation": "misaligned by (9,0) relative to each other - inside the 10px connect threshold, so picking either drags both and the partner snaps into perfect alignment"
+    },
+    {
+      "id": "stacked-pair",
+      "pieces": [
+        {
+          "row": 0,
+          "col": 5
+        },
+        {
+          "row": 3,
+          "col": 0
+        }
+      ],
+      "expectation": "both exactly at (350,500); a click picks the one later in the pieces array (rendered on top)"
+    },
+    {
+      "id": "off-canvas-corner",
+      "piece": {
+        "row": 2,
+        "col": 0
+      },
+      "expectation": "fractional coords (723.4567, 1050.123), hangs off the right AND bottom edges; still draggable by its visible sliver; Organize rescues it"
+    },
+    {
+      "id": "off-canvas-sliver",
+      "piece": {
+        "row": 3,
+        "col": 1
+      },
+      "expectation": "only a 20px sliver visible at the bottom edge; still selectable"
+    },
+    {
+      "id": "tray-stack-1",
+      "count": 7,
+      "at": {
+        "x": 660,
+        "y": 8
+      },
+      "expectation": "seven pieces stacked on one point: z-order stress, no accidental grouping (offsets differ by full piece sizes)"
+    },
+    {
+      "id": "tray-stack-2",
+      "count": 7,
+      "at": {
+        "x": 20,
+        "y": 640
+      },
+      "expectation": "second seven-piece stack, lower left area"
+    }
+  ],
+  "pieces": [
+    {
+      "row": 0,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 0,
+      "correctX": 133.33333333333334,
+      "correctY": 0,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 0,
+      "correctX": 266.6666666666667,
+      "correctY": 0,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "sx": 400,
+      "sy": 0,
+      "correctX": 400,
+      "correctY": 0,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 0,
+      "correctX": 533.3333333333334,
+      "correctY": 0,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "sx": 0,
+      "sy": 300,
+      "correctX": 0,
+      "correctY": 300,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "sx": 400,
+      "sy": 300,
+      "correctX": 400,
+      "correctY": 300,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 1,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 300,
+      "correctX": 533.3333333333334,
+      "correctY": 300,
+      "x": 660,
+      "y": 8
+    },
+    {
+      "row": 1,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 300,
+      "correctX": 666.6666666666667,
+      "correctY": 300,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 600,
+      "correctX": 133.33333333333334,
+      "correctY": 600,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 600,
+      "correctX": 266.6666666666667,
+      "correctY": 600,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 2,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 600,
+      "correctX": 666.6666666666667,
+      "correctY": 600,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 900,
+      "correctX": 266.6666666666667,
+      "correctY": 900,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "sx": 400,
+      "sy": 900,
+      "correctX": 400,
+      "correctY": 900,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 3,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 900,
+      "correctX": 533.3333333333334,
+      "correctY": 900,
+      "x": 20,
+      "y": 640
+    },
+    {
+      "row": 0,
+      "col": 0,
+      "sx": 0,
+      "sy": 0,
+      "correctX": 0,
+      "correctY": 0,
+      "x": 666.6666666666666,
+      "y": 900
+    },
+    {
+      "row": 3,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 900,
+      "correctX": 666.6666666666667,
+      "correctY": 900,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "sx": 400,
+      "sy": 600,
+      "correctX": 400,
+      "correctY": 600,
+      "x": 220,
+      "y": 750
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "sx": 533.3333333333334,
+      "sy": 600,
+      "correctX": 533.3333333333334,
+      "correctY": 600,
+      "x": 362.33333333333337,
+      "y": 750
+    },
+    {
+      "row": 0,
+      "col": 5,
+      "sx": 666.6666666666667,
+      "sy": 0,
+      "correctX": 666.6666666666667,
+      "correctY": 0,
+      "x": 350,
+      "y": 500
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "sx": 0,
+      "sy": 900,
+      "correctX": 0,
+      "correctY": 900,
+      "x": 350,
+      "y": 500
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "sx": 0,
+      "sy": 600,
+      "correctX": 0,
+      "correctY": 600,
+      "x": 723.4567,
+      "y": 1050.123
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 900,
+      "correctX": 133.33333333333334,
+      "correctY": 900,
+      "x": 400,
+      "y": 1180
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "sx": 133.33333333333334,
+      "sy": 300,
+      "correctX": 133.33333333333334,
+      "correctY": 300,
+      "x": 152.33333333333334,
+      "y": 300
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "sx": 266.6666666666667,
+      "sy": 300,
+      "correctX": 266.6666666666667,
+      "correctY": 300,
+      "x": 266.6666666666667,
+      "y": 320
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <linearGradient id="fog" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdd7e0"/>
+      <stop offset="0.4" stop-color="#aebcc9"/>
+      <stop offset="0.7" stop-color="#8fa3b5"/>
+      <stop offset="1" stop-color="#5d7286"/>
+    </linearGradient>
+    <filter id="veryblur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="55"/>
+    </filter>
+  </defs>
+  <rect width="800" height="1200" fill="url(#fog)"/>
+  <g filter="url(#veryblur)">
+    <ellipse cx="240" cy="300" rx="300" ry="150" fill="#dde5ec" opacity="0.55"/>
+    <ellipse cx="600" cy="520" rx="320" ry="170" fill="#9db0c0" opacity="0.5"/>
+    <ellipse cx="300" cy="780" rx="340" ry="180" fill="#77899b" opacity="0.5"/>
+    <ellipse cx="560" cy="1040" rx="320" ry="170" fill="#4e6377" opacity="0.55"/>
+  </g>
+  <!-- faint tree line, barely visible -->
+  <g fill="#6d8093" opacity="0.35">
+    <polygon points="90,930 108,860 126,930"/>
+    <polygon points="130,940 152,850 174,940"/>
+    <polygon points="180,935 196,875 212,935"/>
+  </g>
+  <!-- the single crisp anchor: a lone bird -->
+  <path d="M 388 214 C 398 205 406 205 414 214 C 422 205 430 205 440 214" stroke="#2e3d4c" stroke-width="6" fill="none" stroke-linecap="round"/>
+</svg>

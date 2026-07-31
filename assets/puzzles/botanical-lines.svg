@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <rect width="800" height="1200" fill="#f7f2e9"/>
+  <g stroke="#2f4a3c" fill="none" stroke-linecap="round">
+    <!-- monstera leaf, top left -->
+    <g stroke-width="7">
+      <path d="M 200 120 C 90 150 60 300 150 380 C 240 460 380 420 400 300 C 415 200 320 100 200 120 Z"/>
+      <path d="M 210 150 L 250 350"/>
+      <path d="M 210 150 C 170 190 150 240 160 300"/>
+      <path d="M 240 145 C 280 200 300 260 290 330"/>
+      <path d="M 175 210 L 235 250"/>
+      <path d="M 300 220 L 255 265"/>
+    </g>
+    <!-- fern, right -->
+    <g stroke-width="6">
+      <path d="M 620 140 C 660 320 640 480 560 600"/>
+      <path d="M 636 210 C 600 200 570 210 550 236"/>
+      <path d="M 646 260 C 690 250 716 262 730 288"/>
+      <path d="M 648 320 C 610 312 582 324 564 350"/>
+      <path d="M 648 380 C 692 372 716 386 728 412"/>
+      <path d="M 638 440 C 602 434 576 448 560 474"/>
+      <path d="M 622 500 C 664 494 686 508 696 534"/>
+    </g>
+    <!-- eucalyptus branch, middle -->
+    <g stroke-width="6">
+      <path d="M 180 560 C 300 640 420 720 560 860"/>
+      <circle cx="240" cy="600" r="26"/>
+      <circle cx="310" cy="650" r="28"/>
+      <circle cx="386" cy="702" r="26"/>
+      <circle cx="458" cy="762" r="28"/>
+      <circle cx="524" cy="822" r="26"/>
+    </g>
+    <!-- wildflower stems, bottom -->
+    <g stroke-width="6">
+      <path d="M 160 1140 C 150 1020 170 940 210 880"/>
+      <path d="M 210 880 C 190 870 176 876 168 892 M 210 880 C 226 866 242 866 252 878 M 210 880 C 208 858 216 844 232 838"/>
+      <path d="M 400 1150 C 404 1050 396 980 370 920"/>
+      <circle cx="370" cy="900" r="22"/>
+      <path d="M 370 878 v -24 M 350 886 l -16 -18 M 390 886 l 16 -18"/>
+      <path d="M 620 1150 C 630 1060 650 1000 690 950"/>
+      <path d="M 690 950 C 674 938 658 942 648 956 M 690 950 C 706 936 722 938 730 952 M 690 950 C 690 928 700 914 716 910"/>
+    </g>
+  </g>
+  <!-- terracotta accents -->
+  <g fill="#c96f4a">
+    <circle cx="330" cy="540" r="18"/>
+    <circle cx="700" cy="680" r="14"/>
+    <circle cx="120" cy="760" r="12"/>
+    <circle cx="520" cy="1080" r="16"/>
+  </g>
+  <!-- hand-drawn frame ticks -->
+  <g stroke="#2f4a3c" stroke-width="5" opacity="0.6">
+    <path d="M 40 40 h 60 M 40 40 v 60"/>
+    <path d="M 760 40 h -60 M 760 40 v 60"/>
+    <path d="M 40 1160 h 60 M 40 1160 v -60"/>
+    <path d="M 760 1160 h -60 M 760 1160 v -60"/>
+  </g>
+</svg>

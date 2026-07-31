@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaCrema Demo Hub</title>
+    <style>
+        :root {
+            --background: #09090b;
+            --foreground: #fafafa;
+            --primary: #6366f1;
+            --secondary: #27272a;
+            --muted: #a1a1aa;
+            --border: #27272a;
+            --card: #18181b;
+            --good: #34d399;
+            --warn: #fbbf24;
+            --bad: #f87171;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+        .wrap { max-width: 960px; width: 100%; }
+        h1 { font-size: 2.2rem; margin: 0 0 4px; }
+        h2 { font-size: 1.3rem; margin: 40px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .sub { color: var(--muted); margin: 0 0 24px; }
+        .note {
+            background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 14px; color: var(--muted); font-size: 0.9rem; margin-bottom: 8px;
+        }
+        .note code { color: var(--foreground); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+        .card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+            padding: 16px; display: flex; flex-direction: column; gap: 8px;
+        }
+        .card h3 { margin: 0; font-size: 1.05rem; }
+        .card p { margin: 0; color: var(--muted); font-size: 0.88rem; flex: 1; }
+        .card .meta { font-size: 0.78rem; color: var(--muted); }
+        .card a.go {
+            align-self: flex-start; background: var(--primary); color: #fff; text-decoration: none;
+            padding: 7px 14px; border-radius: 6px; font-size: 0.9rem;
+        }
+        .card a.go:hover { filter: brightness(1.15); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+        th { color: var(--muted); font-weight: 600; }
+        tr:hover td { background: #1f1f23; }
+        a { color: var(--primary); }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; background: var(--secondary); }
+        .pill.easy { color: var(--good); } .pill.medium { color: #93c5fd; }
+        .pill.hard { color: var(--warn); } .pill.expert { color: #f9a8d4; } .pill.cruel { color: var(--bad); }
+        .ok { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+        .stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+        .stat { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; }
+        .stat .n { font-size: 1.5rem; font-weight: 700; }
+        .stat .l { color: var(--muted); font-size: 0.8rem; }
+        .scroll { overflow-x: auto; }
+        #loadError { display: none; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>LaCrema Demo Hub</h1>
+    <p class="sub">One-click demo scenarios, the full puzzle catalog, and the analytics test data — all driving the real app. Scripts for each scenario live in <a href="USE-CASES.md">USE-CASES.md</a>.</p>
+    <div class="note">Fixtures are fetched with <code>fetch()</code>, so serve the repo over HTTP:
+        <code>python3 -m http.server 8000</code> then open <code>http://localhost:8000/demo/</code>.
+        Opening the file directly (<code>file://</code>) will not work.</div>
+    <div class="note bad" id="loadError"></div>
+
+    <h2>Quick demos</h2>
+    <div class="cards">
+        <div class="card">
+            <h3>&#127942; Instant Win</h3>
+            <p>23 of 24 pieces already placed. Drag the last piece home, watch it snap, get the congratulations and the frozen timer. The 30-second stakeholder demo.</p>
+            <span class="meta">fixture: nearly-solved &middot; 4&times;6 &middot; timer resumes at 11:03</span>
+            <a class="go" href="../index.html?state=nearly-solved">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#128118; Kids Quick Win</h3>
+            <p>The 2&times;3 kids puzzle with one chunky piece left. Perfect for a phone: hand the device over and let a four-year-old finish it.</p>
+            <span class="meta">fixture: kids-nearly-solved &middot; 2&times;3 &middot; touch-friendly</span>
+            <a class="go" href="../index.html?state=kids-nearly-solved">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#129522; Group Magnetism</h3>
+            <p>Top edge solved, plus an assembled 2&times;2 block and an L-of-three floating around. Grab any cluster piece — the whole cluster moves; drop it near home and it all snaps.</p>
+            <span class="meta">fixture: mid-game-clusters &middot; groups of 5/4/3 + 12 loose</span>
+            <a class="go" href="../index.html?state=mid-game-clusters">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#127922; Fresh Shuffle</h3>
+            <p>The exact board a player sees right after pressing Start — but reproducible, for consistent screenshots and bug reports.</p>
+            <span class="meta">fixture: fresh-shuffle &middot; deterministic scatter</span>
+            <a class="go" href="../index.html?state=fresh-shuffle">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#9989; Solved Board</h3>
+            <p>The finished artwork with the timer frozen at 14:32. Click any piece and release: the whole board is one group and the solve check re-fires once.</p>
+            <span class="meta">fixture: solved &middot; all 24 exact</span>
+            <a class="go" href="../index.html?state=solved">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#128027; QA Regression Board</h3>
+            <p>Ten boundary conditions on one board: snap radius at 19 vs 20 px, a magnetically joined pair, stacked pieces, off-canvas slivers, deep z-order trays.</p>
+            <span class="meta">fixture: edge-cases &middot; checklist in USE-CASES.md</span>
+            <a class="go" href="../index.html?state=edge-cases">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#128640; Stress: 150 pieces</h3>
+            <p>10&times;15 grid over a repeating terrazzo pattern. Watch drag frame rate — every move runs an O(n&sup2;) connection sweep over 150 pieces.</p>
+            <span class="meta">catalog: qa-stress-150 &middot; press Start</span>
+            <a class="go" href="../index.html?puzzle=qa-stress-150">Open</a>
+        </div>
+        <div class="card">
+            <h3>&#128163; Broken Image</h3>
+            <p>The image URL 404s on purpose. The app must show the friendly load error instead of a silent blank canvas.</p>
+            <span class="meta">catalog: qa-broken-image &middot; expect a red message</span>
+            <a class="go" href="../index.html?puzzle=qa-broken-image">Open</a>
+        </div>
+    </div>
+
+    <h2>Puzzle catalog</h2>
+    <div class="scroll"><table id="catalog">
+        <thead><tr><th>Puzzle</th><th>Grid</th><th>Pieces</th><th>Difficulty</th><th>Notes</th><th></th></tr></thead>
+        <tbody></tbody>
+    </table></div>
+
+    <h2>Analytics sample &mdash; sessions.json</h2>
+    <div class="stats" id="stats"></div>
+    <div class="scroll"><table id="sessions">
+        <thead><tr><th>When</th><th>Player</th><th>Puzzle</th><th>Device</th><th>Outcome</th><th>Progress</th><th>Time</th></tr></thead>
+        <tbody></tbody>
+    </table></div>
+
+    <h2>Leaderboard &mdash; Crema Swirl (flagship)</h2>
+    <div class="scroll"><table id="leaderboard">
+        <thead><tr><th>#</th><th>Player</th><th>Time</th><th>Device</th><th>Date</th></tr></thead>
+        <tbody></tbody>
+    </table></div>
+</div>
+
+<script>
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    async function getJSON(path) {
+        const res = await fetch(path);
+        if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+        return res.json();
+    }
+
+    function renderCatalog(catalog) {
+        const tbody = document.querySelector('#catalog tbody');
+        tbody.innerHTML = catalog.puzzles.map((p) => `
+            <tr>
+                <td>${esc(p.title)}${p.featured ? ' &#11088;' : ''}${p.qaOnly ? ' <span class="pill">QA</span>' : ''}</td>
+                <td>${p.rows}&times;${p.cols}</td>
+                <td>${p.pieceCount}</td>
+                <td><span class="pill ${esc(p.difficulty)}">${esc(p.difficulty)}</span></td>
+                <td style="color:var(--muted)">${esc(p.notes || '')}</td>
+                <td><a href="../index.html?puzzle=${encodeURIComponent(p.id)}">Play</a></td>
+            </tr>`).join('');
+    }
+
+    function renderSessions(data) {
+        const s = data.summary;
+        document.getElementById('stats').innerHTML = `
+            <div class="stat"><div class="n">${s.totalSessions}</div><div class="l">sessions</div></div>
+            <div class="stat"><div class="n ok">${s.completed}</div><div class="l">completed</div></div>
+            <div class="stat"><div class="n warn">${s.abandoned}</div><div class="l">abandoned</div></div>
+            <div class="stat"><div class="n bad">${s.errors}</div><div class="l">errors</div></div>
+            <div class="stat"><div class="n">${Math.round(s.completionRate * 100)}%</div><div class="l">completion rate</div></div>
+            <div class="stat"><div class="n">${Math.floor(s.medianCompletedDurationSeconds / 60)}m ${s.medianCompletedDurationSeconds % 60}s</div><div class="l">median solve</div></div>`;
+        const cls = { completed: 'ok', abandoned: 'warn', error: 'bad' };
+        const tbody = document.querySelector('#sessions tbody');
+        tbody.innerHTML = data.sessions.slice(-12).reverse().map((x) => `
+            <tr>
+                <td>${esc(x.startedAt.replace('T', ' ').replace('Z', ''))}</td>
+                <td>${esc(x.playerName)}</td>
+                <td>${esc(x.puzzleId)} <span style="color:var(--muted)">(${x.pieceCount}pc)</span></td>
+                <td>${esc(x.device)}</td>
+                <td class="${cls[x.outcome]}">${esc(x.outcome)}</td>
+                <td>${x.progressPercent}%</td>
+                <td>${x.durationDisplay ? esc(x.durationDisplay) : '&mdash;'}</td>
+            </tr>`).join('');
+    }
+
+    function renderLeaderboard(lb) {
+        const board = lb.boards.find((b) => b.puzzleId === 'crema-classic') || lb.boards[0];
+        const medals = ['&#129351;', '&#129352;', '&#129353;'];
+        document.querySelector('#leaderboard tbody').innerHTML = board.entries.map((e) => `
+            <tr>
+                <td>${medals[e.rank - 1] || e.rank}</td>
+                <td>${esc(e.playerName)}</td>
+                <td><strong>${esc(e.durationDisplay)}</strong></td>
+                <td>${esc(e.device)}</td>
+                <td>${esc(e.date)}</td>
+            </tr>`).join('');
+    }
+
+    (async () => {
+        try {
+            const [catalog, sessions, leaderboard] = await Promise.all([
+                getJSON('../test-data/puzzles.json'),
+                getJSON('../test-data/sessions.json'),
+                getJSON('../test-data/leaderboard.json'),
+            ]);
+            renderCatalog(catalog);
+            renderSessions(sessions);
+            renderLeaderboard(leaderboard);
+        } catch (err) {
+            const el = document.getElementById('loadError');
+            el.style.display = 'block';
+            el.innerHTML = `Could not load test data (${esc(err.message)}). Are you serving over HTTP from the repo root?`;
+        }
+    })();
+</script>
+</body>
+</html>

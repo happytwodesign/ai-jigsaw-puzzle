@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <rect width="800" height="1200" fill="#aee7ff"/>
+  <!-- sun -->
+  <g stroke="#1f2937" stroke-width="8">
+    <circle cx="140" cy="140" r="76" fill="#ffd93d"/>
+    <g stroke="#f4a300" stroke-width="12" stroke-linecap="round">
+      <path d="M 140 30 v -20"/><path d="M 140 250 v 20"/><path d="M 30 140 h -20"/><path d="M 250 140 h 20"/>
+      <path d="M 63 63 l -16 -16"/><path d="M 217 63 l 16 -16"/><path d="M 63 217 l -16 16"/><path d="M 217 217 l 16 16"/>
+    </g>
+    <circle cx="118" cy="128" r="8" fill="#1f2937" stroke="none"/>
+    <circle cx="164" cy="128" r="8" fill="#1f2937" stroke="none"/>
+    <path d="M 112 162 Q 140 186 168 162" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- cloud -->
+  <g fill="#ffffff" stroke="#1f2937" stroke-width="8">
+    <path d="M 520 150 a 44 44 0 0 1 44 -44 a 52 52 0 0 1 96 10 a 40 40 0 0 1 30 70 l -150 0 a 40 40 0 0 1 -20 -36 Z"/>
+  </g>
+  <!-- rainbow -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 220 420 A 180 180 0 0 1 580 420" stroke="#ff5d5d" stroke-width="26"/>
+    <path d="M 248 420 A 152 152 0 0 1 552 420" stroke="#ffb43d" stroke-width="26"/>
+    <path d="M 276 420 A 124 124 0 0 1 524 420" stroke="#ffe14d" stroke-width="26"/>
+    <path d="M 304 420 A 96 96 0 0 1 496 420" stroke="#63d471" stroke-width="26"/>
+    <path d="M 332 420 A 68 68 0 0 1 468 420" stroke="#4d9dff" stroke-width="26"/>
+  </g>
+  <!-- grass -->
+  <rect y="430" width="800" height="770" fill="#8fd968"/>
+  <path d="M 0 430 C 130 412 260 448 400 430 C 540 412 670 448 800 430 L 800 470 L 0 470 Z" fill="#6cc24a"/>
+  <!-- house -->
+  <g stroke="#1f2937" stroke-width="8">
+    <rect x="90" y="600" width="240" height="200" fill="#ffe08a"/>
+    <path d="M 70 600 L 210 490 L 350 600 Z" fill="#ff7b54"/>
+    <rect x="130" y="650" width="60" height="60" fill="#9ad7ff"/>
+    <path d="M 130 680 h 60 M 160 650 v 60" stroke-width="6" fill="none"/>
+    <rect x="240" y="680" width="60" height="120" fill="#a9744f"/>
+    <circle cx="254" cy="742" r="6" fill="#1f2937" stroke="none"/>
+    <rect x="150" y="520" width="34" height="56" fill="#e2574c"/>
+  </g>
+  <!-- tree with apples -->
+  <g stroke="#1f2937" stroke-width="8">
+    <rect x="560" y="640" width="44" height="160" fill="#a9744f"/>
+    <circle cx="582" cy="560" r="110" fill="#63b94d"/>
+    <circle cx="530" cy="540" r="16" fill="#ff5d5d"/>
+    <circle cx="620" cy="510" r="16" fill="#ff5d5d"/>
+    <circle cx="600" cy="600" r="16" fill="#ff5d5d"/>
+  </g>
+  <!-- cat -->
+  <g stroke="#1f2937" stroke-width="8">
+    <ellipse cx="240" cy="960" rx="96" ry="72" fill="#f9a45b"/>
+    <circle cx="330" cy="900" r="52" fill="#f9a45b"/>
+    <path d="M 300 862 l -12 -34 l 30 16 Z" fill="#f9a45b"/>
+    <path d="M 352 858 l 10 -36 l -32 18 Z" fill="#f9a45b"/>
+    <circle cx="316" cy="894" r="6" fill="#1f2937" stroke="none"/>
+    <circle cx="346" cy="894" r="6" fill="#1f2937" stroke="none"/>
+    <path d="M 322 916 Q 331 924 340 916" fill="none" stroke-width="6"/>
+    <path d="M 144 950 C 110 930 96 950 104 976" fill="none"/>
+  </g>
+  <!-- flowers -->
+  <g stroke="#1f2937" stroke-width="6">
+    <g transform="translate(520 1030)">
+      <path d="M 0 60 v -40" stroke="#3d8f2f" stroke-width="8"/>
+      <circle cx="-16" cy="-30" r="14" fill="#ff8ab5"/><circle cx="16" cy="-30" r="14" fill="#ff8ab5"/>
+      <circle cx="0" cy="-46" r="14" fill="#ff8ab5"/><circle cx="0" cy="-14" r="14" fill="#ff8ab5"/>
+      <circle cx="0" cy="-30" r="10" fill="#ffe14d"/>
+    </g>
+    <g transform="translate(660 1060)">
+      <path d="M 0 60 v -40" stroke="#3d8f2f" stroke-width="8"/>
+      <circle cx="-16" cy="-30" r="14" fill="#b28aff"/><circle cx="16" cy="-30" r="14" fill="#b28aff"/>
+      <circle cx="0" cy="-46" r="14" fill="#b28aff"/><circle cx="0" cy="-14" r="14" fill="#b28aff"/>
+      <circle cx="0" cy="-30" r="10" fill="#ffe14d"/>
+    </g>
+    <g transform="translate(80 1080)">
+      <path d="M 0 60 v -40" stroke="#3d8f2f" stroke-width="8"/>
+      <circle cx="-16" cy="-30" r="14" fill="#7fd4ff"/><circle cx="16" cy="-30" r="14" fill="#7fd4ff"/>
+      <circle cx="0" cy="-46" r="14" fill="#7fd4ff"/><circle cx="0" cy="-14" r="14" fill="#7fd4ff"/>
+      <circle cx="0" cy="-30" r="10" fill="#ffe14d"/>
+    </g>
+  </g>
+  <!-- big smiling star -->
+  <g stroke="#1f2937" stroke-width="8">
+    <path d="M 640 900 l 26 54 60 8 -44 42 11 60 -53 -29 -53 29 11 -60 -44 -42 60 -8 Z" fill="#ffd93d"/>
+    <circle cx="628" cy="962" r="5" fill="#1f2937" stroke="none"/>
+    <circle cx="654" cy="962" r="5" fill="#1f2937" stroke="none"/>
+    <path d="M 626 980 Q 641 992 656 980" fill="none" stroke-width="6"/>
+  </g>
+</svg>

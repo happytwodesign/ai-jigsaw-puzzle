@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "description": "Best completion times per puzzle, derived from sessions.json. Regenerate with generate.mjs; do not edit by hand.",
+  "boards": [
+    {
+      "puzzleId": "crema-classic",
+      "title": "Crema Swirl — LaCrema Classic",
+      "pieceCount": 24,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Yuki Tanaka",
+          "playerType": "registered",
+          "device": "desktop",
+          "durationSeconds": 161,
+          "durationDisplay": "02:41",
+          "date": "2026-07-26",
+          "sessionId": "s-042"
+        },
+        {
+          "rank": 2,
+          "playerName": "Ravi Patel",
+          "playerType": "registered",
+          "device": "desktop",
+          "durationSeconds": 397,
+          "durationDisplay": "06:37",
+          "date": "2026-07-24",
+          "sessionId": "s-036"
+        },
+        {
+          "rank": 3,
+          "playerName": "Mia Chen",
+          "playerType": "registered",
+          "device": "desktop",
+          "durationSeconds": 418,
+          "durationDisplay": "06:58",
+          "date": "2026-07-29",
+          "sessionId": "s-049"
+        },
+        {
+          "rank": 4,
+          "playerName": "Sofia Rossi",
+          "playerType": "registered",
+          "device": "tablet",
+          "durationSeconds": 427,
+          "durationDisplay": "07:07",
+          "date": "2026-07-10",
+          "sessionId": "s-002"
+        },
+        {
+          "rank": 5,
+          "playerName": "Ravi Patel",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 433,
+          "durationDisplay": "07:13",
+          "date": "2026-07-18",
+          "sessionId": "s-021"
+        }
+      ]
+    },
+    {
+      "puzzleId": "aurora-original-remote",
+      "title": "Aurora — Original Remote Artwork",
+      "pieceCount": 24,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Inès Dubois",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 913,
+          "durationDisplay": "15:13",
+          "date": "2026-07-13",
+          "sessionId": "s-013"
+        }
+      ]
+    },
+    {
+      "puzzleId": "aurora-ridge",
+      "title": "Aurora Over the Ridge",
+      "pieceCount": 24,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Guest #2381",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 389,
+          "durationDisplay": "06:29",
+          "date": "2026-07-25",
+          "sessionId": "s-038"
+        },
+        {
+          "rank": 2,
+          "playerName": "Ravi Patel",
+          "playerType": "registered",
+          "device": "tablet",
+          "durationSeconds": 497,
+          "durationDisplay": "08:17",
+          "date": "2026-07-26",
+          "sessionId": "s-045"
+        },
+        {
+          "rank": 3,
+          "playerName": "Yuki Tanaka",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 503,
+          "durationDisplay": "08:23",
+          "date": "2026-07-21",
+          "sessionId": "s-032"
+        },
+        {
+          "rank": 4,
+          "playerName": "Guest #1798",
+          "playerType": "guest",
+          "device": "tablet",
+          "durationSeconds": 650,
+          "durationDisplay": "10:50",
+          "date": "2026-07-26",
+          "sessionId": "s-043"
+        }
+      ]
+    },
+    {
+      "puzzleId": "kids-first-puzzle",
+      "title": "Sunny Day Friends (Kids)",
+      "pieceCount": 6,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Guest #9216",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 45,
+          "durationDisplay": "00:45",
+          "date": "2026-07-26",
+          "sessionId": "s-046"
+        },
+        {
+          "rank": 2,
+          "playerName": "Guest #9074",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 47,
+          "durationDisplay": "00:47",
+          "date": "2026-07-12",
+          "sessionId": "s-009"
+        },
+        {
+          "rank": 3,
+          "playerName": "Guest #9959",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 61,
+          "durationDisplay": "01:01",
+          "date": "2026-07-28",
+          "sessionId": "s-047"
+        },
+        {
+          "rank": 4,
+          "playerName": "Mia Chen",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 83,
+          "durationDisplay": "01:23",
+          "date": "2026-07-25",
+          "sessionId": "s-037"
+        },
+        {
+          "rank": 5,
+          "playerName": "Guest #1422",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 127,
+          "durationDisplay": "02:07",
+          "date": "2026-07-16",
+          "sessionId": "s-020"
+        }
+      ]
+    },
+    {
+      "puzzleId": "sunset-warmup",
+      "title": "Sunset Dunes",
+      "pieceCount": 12,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Ravi Patel",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 116,
+          "durationDisplay": "01:56",
+          "date": "2026-07-18",
+          "sessionId": "s-023"
+        },
+        {
+          "rank": 2,
+          "playerName": "Guest #4088",
+          "playerType": "guest",
+          "device": "desktop",
+          "durationSeconds": 168,
+          "durationDisplay": "02:48",
+          "date": "2026-07-20",
+          "sessionId": "s-028"
+        },
+        {
+          "rank": 3,
+          "playerName": "Mateo García",
+          "playerType": "registered",
+          "device": "tablet",
+          "durationSeconds": 175,
+          "durationDisplay": "02:55",
+          "date": "2026-07-19",
+          "sessionId": "s-027"
+        },
+        {
+          "rank": 4,
+          "playerName": "Guest #2966",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 221,
+          "durationDisplay": "03:41",
+          "date": "2026-07-18",
+          "sessionId": "s-022"
+        },
+        {
+          "rank": 5,
+          "playerName": "Guest #5798",
+          "playerType": "guest",
+          "device": "tablet",
+          "durationSeconds": 316,
+          "durationDisplay": "05:16",
+          "date": "2026-07-25",
+          "sessionId": "s-039"
+        }
+      ]
+    },
+    {
+      "puzzleId": "botanical-afternoon",
+      "title": "Botanical Afternoon",
+      "pieceCount": 24,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Guest #5104",
+          "playerType": "guest",
+          "device": "tablet",
+          "durationSeconds": 403,
+          "durationDisplay": "06:43",
+          "date": "2026-07-18",
+          "sessionId": "s-024"
+        },
+        {
+          "rank": 2,
+          "playerName": "Guest #4836",
+          "playerType": "guest",
+          "device": "mobile",
+          "durationSeconds": 650,
+          "durationDisplay": "10:50",
+          "date": "2026-07-28",
+          "sessionId": "s-048"
+        },
+        {
+          "rank": 3,
+          "playerName": "Hana Kim",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 673,
+          "durationDisplay": "11:13",
+          "date": "2026-07-25",
+          "sessionId": "s-040"
+        }
+      ]
+    },
+    {
+      "puzzleId": "city-nights",
+      "title": "City Nights",
+      "pieceCount": 54,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Yuki Tanaka",
+          "playerType": "registered",
+          "device": "tablet",
+          "durationSeconds": 1072,
+          "durationDisplay": "17:52",
+          "date": "2026-07-30",
+          "sessionId": "s-050"
+        },
+        {
+          "rank": 2,
+          "playerName": "Yuki Tanaka",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 1310,
+          "durationDisplay": "21:50",
+          "date": "2026-07-13",
+          "sessionId": "s-015"
+        }
+      ]
+    },
+    {
+      "puzzleId": "qa-minimal-2",
+      "title": "QA: Minimal 1x2",
+      "pieceCount": 2,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Guest #5025",
+          "playerType": "guest",
+          "device": "tablet",
+          "durationSeconds": 40,
+          "durationDisplay": "00:40",
+          "date": "2026-07-13",
+          "sessionId": "s-012"
+        }
+      ]
+    },
+    {
+      "puzzleId": "qa-stress-150",
+      "title": "QA: Stress 150 Pieces",
+      "pieceCount": 150,
+      "entries": [
+        {
+          "rank": 1,
+          "playerName": "Jonas Weber",
+          "playerType": "registered",
+          "device": "desktop",
+          "durationSeconds": 4870,
+          "durationDisplay": "1:21:10",
+          "date": "2026-07-19",
+          "sessionId": "s-026"
+        },
+        {
+          "rank": 2,
+          "playerName": "Hana Kim",
+          "playerType": "registered",
+          "device": "mobile",
+          "durationSeconds": 7388,
+          "durationDisplay": "2:03:08",
+          "date": "2026-07-26",
+          "sessionId": "s-044"
+        }
+      ]
+    }
+  ]
+}
