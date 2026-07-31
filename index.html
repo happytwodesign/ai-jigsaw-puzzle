@@ -1,422 +1,915 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Jigsaw Puzzle Game</title>
-    <style>
-        :root {
-            --background: #09090b;
-            --foreground: #fafafa;
-            --primary: #6366f1;
-            --primary-foreground: #fafafa;
-            --secondary: #27272a;
-            --secondary-foreground: #fafafa;
-            --border: #27272a;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background);
-            color: var(--foreground);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        canvas {
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            max-width: 100%;
-            height: auto;
-            touch-action: none; /* Prevent default touch actions */
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        button {
-            background-color: var(--secondary);
-            color: var(--secondary-foreground);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: var(--primary);
-        }
-        #startButton {
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-        }
-        #share-link {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #share-link a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        .timer {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .selected {
-            box-shadow: 0 0 10px 5px var(--primary);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PieceTale — Turn your photos into jigsaw puzzles</title>
+<meta name="description" content="Upload a photo and turn it into a beautiful custom jigsaw puzzle — or start from one of our designs. Your story, piece by piece.">
+<meta property="og:title" content="PieceTale — Turn your photos into jigsaw puzzles">
+<meta property="og:description" content="Upload a photo, pick your pieces, and we cut your story into a puzzle worth slowing down for.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23D2E823' stroke='%231E2330' stroke-width='4' d='M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+/* ================= TOKENS ================= */
+:root{
+  --lime:#D2E823; --ink:#1E2330; --ink-2:#2A3140; --paper:#F5F2EB;
+  --purple:#502274; --lav:#E9DFF8; --white:#FFFFFF; --accent:#FF6B4A;
+  --muted:rgba(30,35,48,.62); --muted-inv:rgba(255,255,255,.66);
+  --font:"Inter Tight","Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --hand:"Caveat","Segoe Script",cursive;
+  --r:28px; --r-sm:18px;
+  --e:cubic-bezier(.16,1,.3,1);
+  --shadow:0 24px 60px -24px rgba(30,35,48,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{font-family:var(--font);color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+img,svg,canvas{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+::selection{background:var(--ink);color:var(--lime)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:8px}
+.wrap{width:min(1200px,92vw);margin-inline:auto}
+
+/* ================= TYPE ================= */
+.display{font-weight:900;letter-spacing:-.045em;line-height:.96;font-size:clamp(2.9rem,7vw,6.2rem)}
+.title{font-weight:900;letter-spacing:-.04em;line-height:1;font-size:clamp(2.2rem,4.8vw,4rem)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem;letter-spacing:.02em;
+  padding:8px 16px;border-radius:999px;background:rgba(30,35,48,.08);margin-bottom:26px}
+.dark .eyebrow{background:rgba(255,255,255,.12);color:#fff}
+.on-purple .eyebrow{background:rgba(255,255,255,.14);color:var(--lav)}
+.sub{font-size:clamp(1.05rem,1.6vw,1.3rem);font-weight:500;color:var(--muted);max-width:560px}
+.dark .sub{color:var(--muted-inv)}
+
+/* ================= BLOCKS ================= */
+.block{padding:clamp(90px,12vh,150px) 0}
+.block.lime{background:var(--lime)}
+.block.dark{background:var(--ink);color:#fff}
+.block.purple{background:var(--purple);color:#fff}
+.block.white{background:var(--white)}
+
+/* ================= BUTTONS ================= */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font-weight:700;font-size:1.02rem;text-decoration:none;white-space:nowrap;
+  padding:17px 30px;border-radius:999px;transition:transform .25s var(--e),box-shadow .25s var(--e),background .2s,color .2s;will-change:transform}
+.btn:hover{transform:translateY(-2px) scale(1.02)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn.ink{background:var(--ink);color:#fff}
+.btn.ink:hover{box-shadow:0 14px 30px -12px rgba(30,35,48,.55)}
+.btn.lime-b{background:var(--lime);color:var(--ink)}
+.btn.lime-b:hover{box-shadow:0 14px 30px -12px rgba(210,232,35,.35)}
+.btn.white-b{background:#fff;color:var(--ink)}
+.btn.ghost{box-shadow:inset 0 0 0 2px rgba(30,35,48,.25)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 2px var(--ink)}
+.dark .btn.ghost,.on-purple .btn.ghost{box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);color:#fff}
+.dark .btn.ghost:hover,.on-purple .btn.ghost:hover{box-shadow:inset 0 0 0 2px #fff}
+.btn.big{padding:20px 38px;font-size:1.12rem}
+.btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;border-radius:999px}
+
+/* ================= NAV ================= */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,box-shadow .3s}
+.nav .bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 0}
+.nav.scrolled{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(30,35,48,.08)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.3rem;letter-spacing:-.03em;text-decoration:none}
+.logo svg{width:30px;height:30px}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{text-decoration:none;font-weight:600;font-size:.95rem;padding:10px 16px;border-radius:999px;transition:background .2s}
+.nav-links a:hover{background:rgba(30,35,48,.08)}
+.nav .btn{padding:12px 22px;font-size:.95rem}
+@media (max-width:760px){.nav-links{display:none}}
+
+/* ================= HERO ================= */
+.hero{padding:170px 0 110px;position:relative;overflow:clip}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(30px,5vw,80px);align-items:center}
+@media (max-width:920px){.hero-grid{grid-template-columns:1fr}.hero{padding-top:130px}}
+.hero h1 .ln{display:block;overflow:hidden}
+.hero h1 .ln>span{display:block;transform:translateY(110%);animation:lineUp .9s var(--e) forwards}
+.hero h1 .ln:nth-child(2)>span{animation-delay:.12s}
+.hero h1 .ln:nth-child(3)>span{animation-delay:.24s}
+.hero h1 .st{position:relative;display:inline-block}
+.hero h1 .st::after{content:"";position:absolute;left:.02em;right:.06em;bottom:.005em;height:.07em;background:var(--ink);border-radius:99px;
+  transform:scaleX(0);transform-origin:left;animation:sweep .7s var(--e) forwards 1s}
+@keyframes lineUp{to{transform:translateY(0)}}
+@keyframes sweep{to{transform:scaleX(1)}}
+.hero .sub{margin:28px 0 34px;opacity:0;animation:fadeIn .8s var(--e) forwards .5s}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;opacity:0;animation:fadeIn .8s var(--e) forwards .65s}
+.trust{display:flex;align-items:center;gap:12px;margin-top:30px;font-weight:600;font-size:.92rem;opacity:0;animation:fadeIn .8s var(--e) forwards .85s}
+.trust .avs{display:flex}
+.trust .avs span{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--lime);display:grid;place-items:center;font-size:1rem;background:#fff;margin-left:-10px}
+.trust .avs span:first-child{margin-left:0}
+.trust b{letter-spacing:.01em}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+/* hero mock */
+.mock-zone{position:relative;opacity:0;animation:fadeIn 1s var(--e) forwards .45s}
+.mock{position:relative;background:#fff;border-radius:var(--r);padding:16px 16px 0;box-shadow:var(--shadow);
+  transform:rotate(3deg);animation:floaty 7s ease-in-out infinite;max-width:520px;margin-inline:auto}
+@keyframes floaty{0%,100%{transform:rotate(3deg) translateY(0)}50%{transform:rotate(2.2deg) translateY(-12px)}}
+.mock canvas{border-radius:var(--r-sm);width:100%;aspect-ratio:3/2}
+.mock .mock-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 6px 16px;font-weight:700;font-size:.95rem}
+.mock .mock-bar .hand{font-family:var(--hand);font-weight:600;font-size:1.35rem;color:var(--muted)}
+.mock .chip{background:var(--lime);padding:6px 14px;border-radius:999px;font-size:.85rem}
+.mock-back{position:absolute;inset:8% -4% -6% 6%;background:var(--purple);border-radius:var(--r);transform:rotate(-3.5deg);z-index:-1;opacity:.9}
+.mock-piece{position:absolute;width:74px;z-index:2;filter:drop-shadow(0 14px 20px rgba(30,35,48,.25))}
+.mock-piece.p1{top:-30px;left:-34px;animation:floaty 6s ease-in-out infinite reverse}
+.mock-piece.p2{bottom:-16px;right:-24px;width:60px;animation:floaty 8s ease-in-out infinite}
+
+/* ================= LOGO/PROOF STRIP ================= */
+.strip{display:flex;justify-content:center;gap:clamp(18px,4vw,54px);flex-wrap:wrap;padding:26px 0 0;font-weight:700;font-size:.95rem;color:var(--muted)}
+.strip span{display:flex;align-items:center;gap:8px}
+
+/* ================= STORY SCENE ================= */
+.scene{position:relative;height:340vh}
+.scene-sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;justify-content:center;overflow:clip}
+.photo-stage{position:relative;width:min(54vmin,470px);aspect-ratio:1}
+.polaroid{position:absolute;inset:-4% -4% -14%;background:#fff;border-radius:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+.polaroid .cap{position:absolute;left:0;right:0;bottom:1.2%;text-align:center;font-family:var(--hand);font-size:clamp(1.2rem,2.8vmin,1.7rem);color:#5c5470}
+.tiles{position:absolute;inset:0;border-radius:8px}
+.tile{position:absolute;background-size:400% 400%;will-change:transform,opacity;border-radius:2px}
+.jigsaw-overlay{position:absolute;inset:0;opacity:0;pointer-events:none}
+.scene-cap{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,760px);text-align:center;pointer-events:none;z-index:4}
+.scene-cap.top{top:11svh}.scene-cap.bottom{bottom:7svh}
+.scene-cap h3{font-weight:900;letter-spacing:-.035em;line-height:1.02;font-size:clamp(1.6rem,3.6vw,2.6rem);color:#fff;
+  opacity:0;transform:translateY(24px);transition:opacity .5s,transform .6s var(--e)}
+.scene-cap h3.on{opacity:1;transform:none}
+.scene-cap h3 em{font-style:normal;color:var(--lime)}
+.scene-cnt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;text-align:center;opacity:0;transition:opacity .4s;pointer-events:none}
+.scene-cnt.on{opacity:1}
+.scene-cnt b{display:block;font-weight:900;letter-spacing:-.04em;font-size:clamp(3.4rem,10vmin,6rem);color:var(--lime)}
+.scene-cnt span{font-weight:700;letter-spacing:.18em;text-transform:uppercase;font-size:.78rem;color:var(--muted-inv)}
+.scene-hint{position:absolute;bottom:2.5svh;left:50%;transform:translateX(-50%);font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+
+/* ================= HOW ================= */
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+@media (max-width:820px){.how-grid{grid-template-columns:1fr}}
+.how{background:#fff;border-radius:var(--r);padding:34px 30px;transition:transform .35s var(--e),box-shadow .35s var(--e)}
+.how:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.how .num{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--lime);font-weight:900;font-size:1.15rem;margin-bottom:22px}
+.how h3{font-weight:800;letter-spacing:-.02em;font-size:1.35rem;margin-bottom:8px}
+.how p{color:var(--muted);font-weight:500;font-size:.98rem}
+
+/* ================= MAKER ================= */
+.maker-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(22px,3.4vw,54px);align-items:start;margin-top:60px}
+@media (max-width:920px){.maker-grid{grid-template-columns:1fr}}
+.preview-card{position:sticky;top:96px;background:#fff;border-radius:var(--r);padding:16px;box-shadow:0 1px 2px rgba(30,35,48,.06)}
+@media (max-width:920px){.preview-card{position:static}}
+#makerCanvas{width:100%;aspect-ratio:3/2;border-radius:var(--r-sm);background:var(--paper)}
+.preview-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding:0 6px 6px;flex-wrap:wrap}
+.pieces-out{font-weight:800;letter-spacing:-.02em;font-size:1.15rem}
+.pieces-out .pc{color:var(--purple)}
+.link-btn{font-weight:700;font-size:.95rem;padding:10px 18px;border-radius:999px;background:var(--paper);transition:background .2s,transform .2s var(--e)}
+.link-btn:hover{background:var(--lime);transform:translateY(-1px)}
+.controls{display:flex;flex-direction:column;gap:14px}
+.ctl{background:#fff;border-radius:var(--r);padding:26px 28px}
+.ctl h4{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.01em;font-size:1.05rem;margin-bottom:18px}
+.ctl h4 .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:var(--lime);font-size:.92rem;font-weight:900}
+.drop{position:relative;display:flex;align-items:center;gap:16px;border:2px dashed rgba(30,35,48,.22);border-radius:var(--r-sm);
+  padding:18px 20px;cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--ink);background:var(--paper)}
+.drop .ic{flex:none;width:52px;height:52px;border-radius:16px;background:var(--paper);display:grid;place-items:center;font-size:1.5rem}
+.drop b{display:block;font-size:1rem;letter-spacing:-.01em}
+.drop span{font-size:.85rem;color:var(--muted);font-weight:500}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{border-radius:999px;padding:11px 20px;font-weight:700;font-size:.95rem;background:var(--paper);transition:all .2s var(--e)}
+.pill:hover{transform:translateY(-1px);background:var(--lav)}
+.pill.on{background:var(--ink);color:#fff}
+.pill small{display:block;font-size:.72rem;font-weight:600;opacity:.6;letter-spacing:.02em}
+.cap-input{width:100%;border:2px solid rgba(30,35,48,.14);border-radius:var(--r-sm);padding:14px 18px;
+  font-family:var(--hand);font-size:1.45rem;color:var(--ink);background:#fff;transition:border-color .2s}
+.cap-input:focus{outline:none;border-color:var(--ink)}
+.buy{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:var(--r);padding:24px 28px}
+.buy .price b{font-weight:900;font-size:1.9rem;letter-spacing:-.03em;color:var(--lime)}
+.buy .price span{display:block;font-size:.82rem;font-weight:500;color:var(--muted-inv)}
+
+/* ================= GALLERY ================= */
+.gal-head{display:flex;align-items:end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+@media (max-width:980px){.gal-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:620px){.gal-grid{grid-template-columns:1fr}}
+.gal-card{position:relative;border-radius:var(--r);background:#fff;color:var(--ink);overflow:hidden;cursor:pointer;
+  transition:transform .35s var(--e),box-shadow .35s var(--e)}
+.gal-card:hover{transform:translateY(-8px);box-shadow:0 30px 60px -20px rgba(0,0,0,.45)}
+.gal-art{position:relative;aspect-ratio:3/2;overflow:hidden}
+.gal-art canvas{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--e)}
+.gal-card:hover .gal-art canvas{transform:scale(1.05)}
+.gal-art .grid-lines{position:absolute;inset:0;opacity:0;transition:opacity .4s}
+.gal-card:hover .grid-lines{opacity:.75}
+.gal-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px}
+.gal-meta h3{font-weight:800;letter-spacing:-.02em;font-size:1.18rem}
+.gal-meta small{display:block;font-weight:500;color:var(--muted);font-size:.85rem;margin-top:1px}
+.gal-go{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--paper);font-size:1.05rem;transition:background .25s,transform .35s var(--e)}
+.gal-card:hover .gal-go{background:var(--lime);transform:rotate(-40deg)}
+.gal-tag{position:absolute;top:14px;left:14px;z-index:2;font-weight:700;font-size:.78rem;background:var(--lime);color:var(--ink);border-radius:999px;padding:6px 13px}
+
+/* ================= REVIEWS + STATS ================= */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:70px}
+@media (max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--paper);border-radius:var(--r);padding:30px 26px}
+.stat b{display:block;font-weight:900;letter-spacing:-.04em;font-size:clamp(2rem,3.6vw,3rem);line-height:1}
+.stat span{font-weight:600;color:var(--muted);font-size:.9rem}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:900px){.rev-grid{grid-template-columns:1fr}}
+.rev{background:var(--paper);border-radius:var(--r);padding:32px 30px;display:flex;flex-direction:column;gap:18px;transition:transform .35s var(--e)}
+.rev:hover{transform:translateY(-6px)}
+.rev .stars{color:var(--accent);letter-spacing:3px;font-size:.95rem}
+.rev p{font-weight:600;letter-spacing:-.015em;font-size:1.12rem;line-height:1.45}
+.rev .who{display:flex;align-items:center;gap:12px;margin-top:auto}
+.rev .ava{width:44px;height:44px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.25rem}
+.rev .who b{display:block;font-size:.95rem}
+.rev .who span{font-size:.82rem;color:var(--muted);font-weight:500}
+
+/* ================= FINALE / FOOTER ================= */
+.finale{text-align:center}
+.finale .display{margin-bottom:20px}
+.finale .sub{margin:0 auto 40px}
+footer{background:var(--ink);color:var(--muted-inv);padding:70px 0 40px}
+.foot-word{font-weight:900;letter-spacing:-.05em;line-height:.9;font-size:clamp(3.5rem,14vw,12rem);color:var(--lime);user-select:none}
+.foot-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.12);font-size:.92rem;font-weight:500}
+.foot-row nav{display:flex;gap:6px;flex-wrap:wrap}
+.foot-row a{text-decoration:none;padding:8px 14px;border-radius:999px;transition:background .2s,color .2s}
+.foot-row a:hover{background:rgba(255,255,255,.1);color:#fff}
+
+/* ================= MISC ================= */
+#confetti{position:fixed;inset:0;z-index:900;pointer-events:none}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,180%);z-index:950;background:var(--ink);color:#fff;
+  border-radius:999px;padding:15px 28px;font-weight:700;box-shadow:var(--shadow);transition:transform .5s var(--e);display:flex;gap:10px;align-items:center;max-width:92vw}
+.toast.on{transform:translate(-50%,0)}
+.rv{opacity:0;transform:translateY(30px);transition:opacity .7s var(--e),transform .8s var(--e);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rv,.hero .sub,.cta-row,.trust,.mock-zone{opacity:1;transform:none}
+  .hero h1 .ln>span{transform:none}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>AI Jigsaw Puzzle Game</h1>
-        <div class="timer" id="timer">00:00</div>
-        <canvas id="puzzleCanvas" width="800" height="1200"></canvas>
-        <div class="button-group">
-            <button id="startButton">Start Game</button>
-            <button id="shuffleButton" style="display: none;">Shuffle</button>
-            <button id="previewButton" style="display: none;">Preview Image</button>
-            <button id="organizeButton" style="display: none;">Organize Pieces</button>
-        </div>
-        <div id="share-link"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status"><span>🧩</span><span id="toastMsg">Hello!</span></div>
+
+<nav class="nav" id="nav" aria-label="Main">
+  <div class="wrap bar">
+    <a class="logo" href="#top">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path fill="#1E2330" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg>
+      PieceTale
+    </a>
+    <div class="nav-links">
+      <a href="#story">How it works</a>
+      <a href="#maker">Make yours</a>
+      <a href="#gallery">Designs</a>
+      <a href="#reviews">Reviews</a>
     </div>
+    <a class="btn ink" href="#maker">Start free</a>
+  </div>
+</nav>
 
-    <script>
-        const canvas = document.getElementById('puzzleCanvas');
-        const ctx = canvas.getContext('2d');
-        const shuffleButton = document.getElementById('shuffleButton');
-        const previewButton = document.getElementById('previewButton');
-        const organizeButton = document.getElementById('organizeButton');
-        const shareLinkDiv = document.getElementById('share-link');
-        const startButton = document.getElementById('startButton');
+<header class="block lime hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 class="display" aria-label="Your photo. Your puzzle. Your story.">
+        <span class="ln"><span>Your photo.</span></span>
+        <span class="ln"><span>Your puzzle.</span></span>
+        <span class="ln"><span><span class="st">Your story.</span></span></span>
+      </h1>
+      <p class="sub">Upload the photo you can't stop looking at, and we'll cut it into a jigsaw puzzle worth slowing down for. From 24 to 1,000 pieces, made in 48 hours.</p>
+      <div class="cta-row">
+        <label class="btn ink big">📸 Upload your photo<input type="file" id="heroFile" accept="image/*" aria-label="Upload your photo"></label>
+        <a class="btn ghost big" href="#gallery">Browse designs</a>
+      </div>
+      <div class="trust">
+        <div class="avs"><span>💍</span><span>🐕</span><span>🎂</span><span>⛄</span></div>
+        <div><b>12,000+ stories</b> pieced together · ★★★★★</div>
+      </div>
+    </div>
+    <div class="mock-zone">
+      <div class="mock-back" aria-hidden="true"></div>
+      <div class="mock">
+        <canvas id="heroPuzzle" width="900" height="600" aria-label="A photo cut into jigsaw pieces"></canvas>
+        <div class="mock-bar"><span class="hand">golden hour, us ✦</span><span class="chip">96 pieces</span></div>
+      </div>
+      <svg class="mock-piece p1" viewBox="0 0 64 64" aria-hidden="true"><path fill="#502274" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg>
+      <svg class="mock-piece p2" viewBox="0 0 64 64" aria-hidden="true"><path fill="#FF6B4A" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg>
+    </div>
+  </div>
+  <div class="wrap strip">
+    <span>🚚 Free tracked shipping</span><span>♻️ Recycled board</span><span>⏱️ Made in 48h</span><span>🔒 Photos stay private</span>
+  </div>
+</header>
 
-        let img = new Image();
-        img.src = 'https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png'; // Replace with your AI-generated image link
+<section class="scene dark block" id="story" style="padding:0;background:var(--ink)" aria-label="How a photo becomes a puzzle">
+  <div class="scene-sticky">
+    <div class="scene-cap top">
+      <h3 id="cap1">It starts with <em>a moment.</em></h3>
+      <h3 id="cap2" style="position:absolute;top:0;left:0;right:0">Then we cut it — <em>beautifully.</em></h3>
+      <h3 id="cap3" style="position:absolute;top:0;left:0;right:0">And <em>you</em> bring it back, piece by piece.</h3>
+    </div>
+    <div class="photo-stage">
+      <div class="polaroid" id="polaroid"><span class="cap" id="polaroidCap">golden hour, us, forever ✦</span></div>
+      <div class="tiles" id="tiles"></div>
+      <svg class="jigsaw-overlay" id="jigsawOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="scene-cnt" id="sceneCnt"><b id="pieceCount">0</b><span>pieces of you</span></div>
+    </div>
+    <div class="scene-cap bottom">
+      <h3 id="cap4">That's the whole magic. <em>Your memory, remade by your hands.</em></h3>
+    </div>
+    <div class="scene-hint" id="sceneHint">keep scrolling</div>
+  </div>
+</section>
 
-        const rows = 4, cols = 6;
-        let pieces = [];
-        let pieceWidth, pieceHeight;
+<section class="block" id="how">
+  <div class="wrap">
+    <span class="eyebrow rv">✦ How it works</span>
+    <h2 class="title rv">Three steps. One keepsake.</h2>
+    <div class="how-grid">
+      <div class="how rv"><span class="num">1</span><h3>Upload a photo</h3><p>Any moment that means something — a wedding, a dog, a terrible haircut from 2009. It stays private.</p></div>
+      <div class="how rv" style="--d:.08s"><span class="num">2</span><h3>Tune your puzzle</h3><p>Pick 24 to 1,000 pieces, preview the real cut live, and name your box in your own words.</p></div>
+      <div class="how rv" style="--d:.16s"><span class="num">3</span><h3>Piece it together</h3><p>We print, cut and ship in 48 hours. You supply the table, the evening and the company.</p></div>
+    </div>
+  </div>
+</section>
 
-        let selectedGroup = [];
+<section class="block white" id="maker">
+  <div class="wrap">
+    <span class="eyebrow rv" style="background:rgba(80,34,116,.1);color:var(--purple)">✦ The workshop</span>
+    <h2 class="title rv">Make it yours, live.</h2>
+    <p class="sub rv" style="margin-top:16px">Drop in a photo and watch the real cut appear. Everything updates as you play.</p>
+    <div class="maker-grid">
+      <div class="preview-card rv">
+        <canvas id="makerCanvas" width="1200" height="800" aria-label="Live preview of your puzzle"></canvas>
+        <div class="preview-tools">
+          <div class="pieces-out"><span class="pc" id="piecesLabel">96</span> pieces · <span id="sizeLabel">46×31 cm</span></div>
+          <button class="link-btn" id="scatterBtn">💥 Scatter it</button>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctl rv">
+          <h4><span class="n">1</span> Your moment</h4>
+          <label class="drop" id="drop">
+            <input type="file" id="fileInput" accept="image/*" aria-label="Upload your photo">
+            <span class="ic">📸</span>
+            <span><b id="dropTitle">Drag a photo here — or tap</b><span>JPG or PNG · stays in your browser in this demo</span></span>
+          </label>
+        </div>
+        <div class="ctl rv" style="--d:.06s">
+          <h4><span class="n">2</span> Pieces</h4>
+          <div class="pills" id="piecePills">
+            <button class="pill" data-pieces="24">24<small>kids</small></button>
+            <button class="pill on" data-pieces="96">96<small>cosy</small></button>
+            <button class="pill" data-pieces="510">510<small>weekend</small></button>
+            <button class="pill" data-pieces="988">1000<small>epic</small></button>
+          </div>
+        </div>
+        <div class="ctl rv" style="--d:.12s">
+          <h4><span class="n">3</span> Name your box</h4>
+          <input class="cap-input" id="captionInput" maxlength="34" value="the summer we won't shut up about">
+        </div>
+        <div class="buy rv" style="--d:.18s">
+          <div class="price"><b id="price">€34</b><span>free tracked shipping</span></div>
+          <button class="btn lime-b" id="buyBtn">Piece me together</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // Initialize the puzzle pieces in a chaotic distribution
-        function initPuzzle() {
-            console.log('Initializing puzzle pieces');
-            pieces = [];
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    pieces.push({
-                        sx: col * pieceWidth,
-                        sy: row * pieceHeight,
-                        x: Math.random() * (canvas.width - pieceWidth),
-                        y: Math.random() * (canvas.height - pieceHeight),
-                        correctX: col * pieceWidth,
-                        correctY: row * pieceHeight
-                    });
-                }
-            }
-            console.log('Puzzle pieces initialized:', pieces);
-        }
+<section class="block purple on-purple" id="gallery">
+  <div class="wrap">
+    <div class="gal-head">
+      <div>
+        <span class="eyebrow rv">✦ No photo? No problem</span>
+        <h2 class="title rv">Start from a design.</h2>
+      </div>
+      <p class="sub rv" style="color:var(--lav);max-width:380px">Six worlds painted by our studio. Hover to see the blade path — click to send one to the workshop.</p>
+    </div>
+    <div class="gal-grid" id="galGrid"></div>
+  </div>
+</section>
 
-        // Start button event listener
-        startButton.addEventListener('click', () => {
-            console.log('Starting game');
-            initPuzzle();
-            drawPuzzle();
-            startButton.style.display = 'none';
-            shuffleButton.style.display = 'inline-block';
-            previewButton.style.display = 'inline-block';
-            organizeButton.style.display = 'inline-block';
-            startTimer();
-        });
+<section class="block white" id="reviews">
+  <div class="wrap">
+    <span class="eyebrow rv">✦ The proof</span>
+    <h2 class="title rv" style="margin-bottom:56px">Around a puzzle, things happen.</h2>
+    <div class="stats">
+      <div class="stat rv"><b><span data-count="12482">0</span></b><span>stories pieced together</span></div>
+      <div class="stat rv" style="--d:.06s"><b><span data-count="48">0</span>h</b><span>photo to doorstep</span></div>
+      <div class="stat rv" style="--d:.12s"><b><span data-count="1000">0</span></b><span>pieces, max drama</span></div>
+      <div class="stat rv" style="--d:.18s"><b>4.9★</b><span>average review</span></div>
+    </div>
+    <div class="rev-grid">
+      <div class="rev rv"><span class="stars">★★★★★</span><p>"We puzzled our wedding photo on our first anniversary. Finished at 2am, cried at the last piece."</p><div class="who"><span class="ava">💍</span><div><b>Marta & Jo</b><span>1,000 pieces</span></div></div></div>
+      <div class="rev rv" style="--d:.08s"><span class="stars">★★★★★</span><p>"My dad hasn't put his phone down in years. This put it down for him. Three Sundays straight."</p><div class="who"><span class="ava">👨‍👧</span><div><b>Ines</b><span>510 pieces</span></div></div></div>
+      <div class="rev rv" style="--d:.16s"><span class="stars">★★★★★</span><p>"Grandma's 90th. Ninety years, a thousand pieces, four generations at one table."</p><div class="who"><span class="ava">🎂</span><div><b>The Okafors</b><span>1,000 pieces</span></div></div></div>
+    </div>
+  </div>
+</section>
 
-        // Load the image and initialize the puzzle
-        img.onload = function() {
-            console.log('Image loaded');
-            pieceWidth = canvas.width / cols; // Calculate the width of each puzzle piece
-            pieceHeight = canvas.height / rows; // Calculate the height of each puzzle piece
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
-        };
+<section class="block lime finale">
+  <div class="wrap">
+    <span class="eyebrow rv">✦ The last chapter is yours</span>
+    <h2 class="display rv">Some stories<br>deserve to be held.</h2>
+    <p class="sub rv" style="--d:.08s">Screens scroll past. Puzzles stay on the table, in the middle of your best evenings.</p>
+    <div class="cta-row rv" style="--d:.14s;justify-content:center;opacity:1;animation:none">
+      <label class="btn ink big">📸 Upload your photo<input type="file" id="finaleFile" accept="image/*" aria-label="Upload your photo"></label>
+      <a class="btn ghost big" href="#gallery" style="box-shadow:inset 0 0 0 2px rgba(30,35,48,.3);color:var(--ink)">Browse designs</a>
+    </div>
+  </div>
+</section>
 
-        // Modified draw function to remove highlighting
-        function drawPuzzle() {
-            console.log('Drawing puzzle');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            pieces.forEach(piece => {
-                ctx.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.x, piece.y, pieceWidth, pieceHeight);
-            });
-            console.log('Puzzle drawn');
-        }
+<footer>
+  <div class="wrap">
+    <div class="foot-word" aria-hidden="true">PieceTale</div>
+    <div class="foot-row">
+      <span>© 2026 PieceTale · made slowly, on purpose</span>
+      <nav aria-label="Footer"><a href="#story">Story</a><a href="#maker">Workshop</a><a href="#gallery">Designs</a><a href="#reviews">Reviews</a><a href="#top">Top</a></nav>
+    </div>
+  </div>
+</footer>
 
-        // Shuffle button event listener to shuffle the puzzle pieces
-        shuffleButton.addEventListener('click', () => {
-            console.log('Shuffling puzzle pieces');
-            pieces = pieces.sort(() => Math.random() - 0.5); // Shuffle the pieces array randomly
-            drawPuzzle(); // Redraw the shuffled puzzle
-        });
+<script>
+"use strict";
+/* ============ utils ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function seeded(i){let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+const DPR=Math.min(2,window.devicePixelRatio||1);
 
-        // Preview button functionality to show the complete image
-        previewButton.addEventListener('click', () => {
-            console.log('Previewing full image');
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
-        });
+/* ============ jigsaw geometry ============ */
+function tabArc(ctx,sx,sy,ex,ey,cx,cy,r,fx,fy){
+  const TAU=Math.PI*2,norm=a=>((a%TAU)+TAU)%TAU;
+  const a0=Math.atan2(sy-cy,sx-cx),a1=Math.atan2(ey-cy,ex-cx),af=Math.atan2(fy-cy,fx-cx);
+  const fwd=norm(af-a0)<=norm(a1-a0)+1e-9;
+  ctx.arc(cx,cy,r,a0,a1,!fwd);
+}
+function edgeTo(ctx,x1,y1,x2,y2,s){
+  if(!s){ctx.lineTo(x2,y2);return}
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+  const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+  const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+  const mx=x1+dx/2,my=y1+dy/2;
+  const ax=mx-ux*g,ay=my-uy*g,bx=mx+ux*g,by=my+uy*g;
+  const cx=mx+nx*hh,cy=my+ny*hh,fx=cx+nx*t,fy=cy+ny*t;
+  ctx.lineTo(ax,ay);tabArc(ctx,ax,ay,bx,by,cx,cy,t,fx,fy);ctx.lineTo(x2,y2);
+}
+function piecePath(ctx,x,y,w,h,e){
+  ctx.beginPath();ctx.moveTo(x,y);
+  edgeTo(ctx,x,y,x+w,y,e.t);edgeTo(ctx,x+w,y,x+w,y+h,e.r);
+  edgeTo(ctx,x+w,y+h,x,y+h,e.b);edgeTo(ctx,x,y+h,x,y,e.l);
+  ctx.closePath();
+}
+function makeEdges(cols,rows,seedBase=7){
+  const H=[],V=[];
+  for(let r=0;r<rows-1;r++){H[r]=[];for(let c=0;c<cols;c++)H[r][c]=seeded(seedBase+r*97+c*13)>.5?1:-1}
+  for(let r=0;r<rows;r++){V[r]=[];for(let c=0;c<cols-1;c++)V[r][c]=seeded(seedBase+r*41+c*71+9)>.5?1:-1}
+  return {H,V,cols,rows};
+}
+function edgesFor(E,r,c){
+  return {t:r===0?0:E.H[r-1][c],r:c===E.cols-1?0:E.V[r][c],b:r===E.rows-1?0:-E.H[r][c],l:c===0?0:-E.V[r][c-1]};
+}
+/* shared cut renderer: draws src canvas cut into cols×rows, scatter 0..1 */
+function renderCut(ctx,W,H,src,cols,rows,scatter){
+  const E=makeEdges(cols,rows,cols*3+rows),pw=W/cols,ph=H/rows,many=cols*rows>300;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="rgba(30,35,48,.04)";ctx.fillRect(0,0,W,H);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const i=r*cols+c;
+    ctx.save();
+    if(scatter>0){
+      const a=seeded(i*2.13)*Math.PI*2,d=scatter*(50+seeded(i*3.31)*170),rot=scatter*(seeded(i*4.7)-.5)*1.3;
+      const pcx=c*pw+pw/2,pcy=r*ph+ph/2;
+      ctx.translate(pcx+Math.cos(a)*d,pcy+Math.sin(a)*d*.72);ctx.rotate(rot);ctx.translate(-pcx,-pcy);
+    }
+    piecePath(ctx,c*pw,r*ph,pw,ph,edgesFor(E,r,c));
+    ctx.clip();ctx.drawImage(src,0,0,W,H);
+    ctx.lineWidth=many?1.4:2.4;ctx.strokeStyle=many?"rgba(255,255,255,.5)":"rgba(255,255,255,.7)";ctx.stroke();
+    ctx.strokeStyle="rgba(30,35,48,.22)";ctx.lineWidth=many?.8:1.3;ctx.stroke();
+    ctx.restore();
+  }
+}
 
-        // Generate a shareable link for the current puzzle
-        function generateShareLink() {
-            console.log('Generating share link');
-            const baseUrl = window.location.href;
-            // Create a link element to share the puzzle with a friend
-            shareLinkDiv.innerHTML = `<a href="${baseUrl}" target="_blank">Share this puzzle with a friend!</a>`;
-            console.log('Share link generated:', baseUrl);
-        }
+/* ============ the "memory" — generative golden-hour photo ============ */
+function paintMoment(ctx,w,h){
+  const sky=ctx.createLinearGradient(0,0,0,h*.72);
+  sky.addColorStop(0,"#FF5E7E");sky.addColorStop(.42,"#FF9E5E");sky.addColorStop(.8,"#FFD98A");sky.addColorStop(1,"#FFEDB8");
+  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h*.72);
+  const sx=w*.62,sy=h*.5,sr=w*.13;
+  const halo=ctx.createRadialGradient(sx,sy,sr*.3,sx,sy,sr*3.1);
+  halo.addColorStop(0,"rgba(255,246,200,.95)");halo.addColorStop(1,"rgba(255,246,200,0)");
+  ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="#FFF3C4";ctx.beginPath();ctx.arc(sx,sy,sr,0,7);ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.30)";
+  [[.16,.2,.13],[.42,.13,.09],[.78,.26,.11],[.28,.34,.07]].forEach(([cx,cy,cr])=>{
+    for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(w*cx+i*w*cr*.38,h*cy+(i%2)*h*.008,w*cr*(.42-.06*i),0,7);ctx.fill()}
+  });
+  ctx.fillStyle="#B86BA5";
+  ctx.beginPath();ctx.moveTo(0,h*.6);
+  for(let x=0;x<=w;x+=w/40)ctx.lineTo(x,h*.6-Math.sin(x/w*Math.PI*2.2+1)*h*.07-seeded(x)*h*.012);
+  ctx.lineTo(w,h*.72);ctx.lineTo(0,h*.72);ctx.fill();
+  ctx.fillStyle="#7D4E93";
+  ctx.beginPath();ctx.moveTo(0,h*.66);
+  for(let x=0;x<=w;x+=w/40)ctx.lineTo(x,h*.66-Math.sin(x/w*Math.PI*1.6+3)*h*.05);
+  ctx.lineTo(w,h*.72);ctx.lineTo(0,h*.72);ctx.fill();
+  const sea=ctx.createLinearGradient(0,h*.72,0,h);
+  sea.addColorStop(0,"#FF9E7A");sea.addColorStop(.5,"#5E8BD9");sea.addColorStop(1,"#3D5FA8");
+  ctx.fillStyle=sea;ctx.fillRect(0,h*.72,w,h*.28);
+  for(let i=0;i<26;i++){
+    const yy=h*.73+i*(h*.26/26);
+    const ww=lerp(w*.2,w*.03,i/26)*(0.5+seeded(i)*0.8);
+    ctx.fillStyle=`rgba(255,236,170,${.5-i*.013})`;
+    ctx.fillRect(sx-ww/2+(seeded(i*3)-.5)*w*.04,yy,ww,h*.008);
+  }
+  ctx.strokeStyle="#3A2B55";ctx.lineWidth=Math.max(2,w*.004);ctx.lineCap="round";
+  [[.24,.3,1],[.3,.26,.7],[.36,.32,.55]].forEach(([bx,by,s])=>{
+    ctx.beginPath();ctx.moveTo(w*(bx-.022*s),h*by);
+    ctx.quadraticCurveTo(w*(bx-.01*s),h*(by-.018*s),w*bx,h*by);
+    ctx.quadraticCurveTo(w*(bx+.012*s),h*(by-.018*s),w*(bx+.024*s),h*by);
+    ctx.stroke();
+  });
+  ctx.fillStyle="#2C2144";
+  const fy=h*.965;
+  [[.3,.052],[.345,.062]].forEach(([fx,fh])=>{
+    ctx.beginPath();ctx.arc(w*fx,fy-h*fh,w*.012,0,7);ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(w*fx-w*.011,fy-h*fh+w*.012,w*.022,h*fh-w*.008,w*.01):ctx.rect(w*fx-w*.011,fy-h*fh+w*.012,w*.022,h*fh-w*.008);
+    ctx.fill();
+  });
+  ctx.strokeStyle="#2C2144";ctx.lineWidth=w*.006;
+  ctx.beginPath();ctx.moveTo(w*.311,fy-h*.028);ctx.quadraticCurveTo(w*.3225,fy-h*.019,w*.334,fy-h*.03);ctx.stroke();
+  const vg=ctx.createRadialGradient(w/2,h/2,w*.35,w/2,h/2,w*.78);
+  vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(60,20,60,.24)");
+  ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+}
+const momentCanvas=document.createElement("canvas");
+momentCanvas.width=momentCanvas.height=900;
+paintMoment(momentCanvas.getContext("2d"),900,900);
+const momentURL=momentCanvas.toDataURL("image/jpeg",.9);
 
-        generateShareLink(); // Call the function to generate the share link
+/* ============ hero mock puzzle ============ */
+(function heroPuzzle(){
+  const cv=$("#heroPuzzle"),ctx=cv.getContext("2d");
+  const src=document.createElement("canvas");src.width=900;src.height=600;
+  src.getContext("2d").drawImage(momentCanvas,0,140,900,600,0,0,900,600);
+  renderCut(ctx,900,600,src,6,4,0);
+})();
 
-        // Organize button functionality to arrange pieces around the center
-        organizeButton.addEventListener('click', () => {
-            console.log('Organizing puzzle pieces');
-            const padding = 50; // Padding around the center
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const leftBoundary = padding;
-            const rightBoundary = canvas.width - pieceWidth - padding;
-            const topBoundary = padding;
-            const bottomBoundary = canvas.height - pieceHeight - padding;
+/* ============ sticky shatter scene ============ */
+const GRID=4,tilesEl=$("#tiles"),tiles=[];
+(function buildTiles(){
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID;c++){
+    const t=document.createElement("div");
+    t.className="tile";
+    t.style.width=100/GRID+"%";t.style.height=100/GRID+"%";
+    t.style.left=c*100/GRID+"%";t.style.top=r*100/GRID+"%";
+    t.style.backgroundImage=`url(${momentURL})`;
+    t.style.backgroundPosition=`${c*100/(GRID-1)}% ${r*100/(GRID-1)}%`;
+    const i=r*GRID+c,a=seeded(i*7.3)*Math.PI*2,dist=(.55+seeded(i*3.1)*.85);
+    tiles.push({el:t,dx:Math.cos(a)*dist,dy:Math.sin(a)*dist,rot:(seeded(i*9.7)-.5)*260});
+    tilesEl.appendChild(t);
+  }
+})();
+(function buildOverlay(){
+  const E=makeEdges(GRID,GRID,21),svg=$("#jigsawOverlay");
+  let d="";
+  const seg=(x1,y1,x2,y2,s)=>{
+    if(!s){d+=`M${x1} ${y1}L${x2} ${y2}`;return}
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+    const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+    const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+    const mx=x1+dx/2,my=y1+dy/2;
+    const ax=mx-ux*g,ay=my-uy*g,bx=mx+ux*g,by=my+uy*g;
+    const fx=mx+nx*(hh+t),fy=my+ny*(hh+t);
+    const sweep=((bx-ax)*(fy-ay)-(by-ay)*(fx-ax))>0?0:1;
+    d+=`M${x1} ${y1}L${ax} ${ay}A${t} ${t} 0 1 ${sweep} ${bx} ${by}L${x2} ${y2}`;
+  };
+  const st=100/GRID;
+  for(let r=0;r<GRID-1;r++)for(let c=0;c<GRID;c++)seg(c*st,(r+1)*st,(c+1)*st,(r+1)*st,E.H[r][c]);
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID-1;c++)seg((c+1)*st,r*st,(c+1)*st,(r+1)*st,E.V[r][c]);
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="#fff" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".85"/>`;
+})();
+const sceneEl=$("#story"),polaroid=$("#polaroid"),overlay=$("#jigsawOverlay"),
+      sceneCnt=$("#sceneCnt"),pieceCountEl=$("#pieceCount"),sceneHint=$("#sceneHint"),
+      caps=[$("#cap1"),$("#cap2"),$("#cap3"),$("#cap4")],stageEl=$(".photo-stage");
+let lastCount=-1;
+function sceneTick(){
+  const r=sceneEl.getBoundingClientRect();
+  if(r.bottom<-200||r.top>innerHeight+200)return;
+  const total=r.height-innerHeight;
+  const p=clamp(-r.top/total,0,1);
+  const sh=easeIO(clamp((p-.18)/.3,0,1));
+  const re=easeIO(clamp((p-.62)/.28,0,1));
+  const f=sh*(1-re);
+  const R=stageEl.getBoundingClientRect().width;
+  tiles.forEach(t=>{
+    t.el.style.transform=`translate(${t.dx*R*1.35*f}px,${t.dy*R*1.15*f}px) rotate(${t.rot*f}deg) scale(${1-f*.12})`;
+    t.el.style.opacity=1-f*.1;
+  });
+  polaroid.style.opacity=String(clamp(1-sh*4,0,1));
+  polaroid.style.transform=`scale(${1+sh*.18})`;
+  overlay.style.opacity=clamp((p-.86)/.1,0,1);
+  caps[0].classList.toggle("on",p<.22);
+  caps[1].classList.toggle("on",p>=.22&&p<.58);
+  caps[2].classList.toggle("on",p>=.58&&p<.88);
+  caps[3].classList.toggle("on",p>=.88);
+  sceneHint.style.opacity=p>.04&&p<.8?"1":"0";
+  const showCnt=p>=.3&&p<.6;
+  sceneCnt.classList.toggle("on",showCnt);
+  if(showCnt){
+    const n=Math.round(easeOut(clamp((p-.3)/.22,0,1))*1000);
+    if(n!==lastCount){pieceCountEl.textContent=n.toLocaleString("en-US");lastCount=n}
+  }
+}
+</script>
 
-            let index = 0;
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    // Skip pieces that would overlap the center area
-                    if (
-                        (col * pieceWidth + pieceWidth / 2 > centerX - pieceWidth && col * pieceWidth + pieceWidth / 2 < centerX + pieceWidth) &&
-                        (row * pieceHeight + pieceHeight / 2 > centerY - pieceHeight && row * pieceHeight + pieceHeight / 2 < centerY + pieceHeight)
-                    ) {
-                        continue;
-                    }
-                    pieces[index].x = Math.max(leftBoundary, Math.min(rightBoundary, col * pieceWidth)); // Position the piece within boundaries
-                    pieces[index].y = Math.max(topBoundary, Math.min(bottomBoundary, row * pieceHeight)); // Position the piece within boundaries
-                    index++;
-                }
-            }
-            drawPuzzle(); // Redraw the organized puzzle
-        });
+<script>
+"use strict";
+/* ============ nav / reveals / counters / toast ============ */
+const nav=$("#nav");
+addEventListener("scroll",()=>{nav.classList.toggle("scrolled",scrollY>40)},{passive:true});
+const io=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    if(!en.isIntersecting)return;
+    en.target.classList.add("in");
+    en.target.querySelectorAll("[data-count]").forEach(el=>{
+      if(el.dataset.done)return;el.dataset.done=1;
+      const target=+el.dataset.count,t0=performance.now(),dur=1500;
+      (function tick(t){
+        const k=easeOut(clamp((t-t0)/dur,0,1));
+        el.textContent=Math.round(target*k).toLocaleString("en-US");
+        if(k<1)requestAnimationFrame(tick);
+      })(t0);
+    });
+    io.unobserve(en.target);
+  });
+},{threshold:.2});
+$$(".rv").forEach(el=>io.observe(el));
+const toast=$("#toast"),toastMsg=$("#toastMsg");let toastT;
+function say(msg){
+  toastMsg.textContent=msg;toast.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove("on"),3400);
+}
 
-        // Drag and drop functionality
-        let selectedPiece = null; // Variable to store the currently selected piece
-        let offsetX = 0, offsetY = 0; // Offsets to track mouse position relative to the piece
+/* ============ THE WORKSHOP ============ */
+const mkCv=$("#makerCanvas"),mk=mkCv.getContext("2d");
+const srcCv=document.createElement("canvas");srcCv.width=1200;srcCv.height=800;
+const captionInput=$("#captionInput"),piecesLabel=$("#piecesLabel"),sizeLabel=$("#sizeLabel"),priceEl=$("#price");
+const PIECE_OPTS={
+  24:{cols:6,rows:4,label:"24",size:"24×18 cm",price:"€24"},
+  96:{cols:12,rows:8,label:"96",size:"46×31 cm",price:"€34"},
+  510:{cols:30,rows:17,label:"510",size:"49×34 cm",price:"€49"},
+  988:{cols:38,rows:26,label:"1000",size:"68×48 cm",price:"€59"}
+};
+const mkState={img:momentCanvas,pieces:96,scatter:0};
+function drawSource(){
+  const s=srcCv.getContext("2d"),img=mkState.img;
+  const iw=img.width,ih=img.height,sc=Math.max(1200/iw,800/ih);
+  s.clearRect(0,0,1200,800);
+  s.drawImage(img,(1200-iw*sc)/2,(800-ih*sc)/2,iw*sc,ih*sc);
+  const cap=captionInput.value.trim();
+  if(cap){
+    s.save();s.translate(46,800-52);s.rotate(-.02);
+    s.font="600 52px Caveat, 'Segoe Script', cursive";
+    const w=s.measureText(cap).width;
+    s.fillStyle="rgba(30,35,48,.78)";
+    s.beginPath();
+    s.roundRect?s.roundRect(-22,-52,w+44,74,37):s.rect(-22,-52,w+44,74);
+    s.fill();
+    s.fillStyle="#F5F2EB";s.fillText(cap,0,4);
+    s.restore();
+  }
+}
+function renderMaker(){
+  drawSource();
+  const o=PIECE_OPTS[mkState.pieces];
+  renderCut(mk,1200,800,srcCv,o.cols,o.rows,mkState.scatter);
+}
+function refreshMeta(){
+  const o=PIECE_OPTS[mkState.pieces];
+  piecesLabel.textContent=o.label;sizeLabel.textContent=o.size;priceEl.textContent=o.price;
+}
+let scatterTarget=0,scatterAnim=null;
+function animateScatter(to,dur=950){
+  scatterTarget=to;
+  const from=mkState.scatter,t0=performance.now();
+  cancelAnimationFrame(scatterAnim);
+  (function step(t){
+    const k=easeIO(clamp((t-t0)/dur,0,1));
+    mkState.scatter=lerp(from,to,k);
+    renderMaker();
+    if(k<1)scatterAnim=requestAnimationFrame(step);
+  })(t0);
+}
+$("#scatterBtn").addEventListener("click",e=>{
+  const to=scatterTarget>0?0:1;
+  animateScatter(to);
+  e.currentTarget.textContent=to?"🧲 Snap it back":"💥 Scatter it";
+  if(to)spawnConfetti(e.clientX,e.clientY,26);
+});
+$("#piecePills").addEventListener("click",e=>{
+  const b=e.target.closest(".pill");if(!b)return;
+  $$("#piecePills .pill").forEach(p=>p.classList.remove("on"));
+  b.classList.add("on");
+  mkState.pieces=+b.dataset.pieces;refreshMeta();
+  mkState.scatter=Math.max(mkState.scatter,.4);
+  scatterTarget=0;$("#scatterBtn").textContent="💥 Scatter it";
+  animateScatter(0,700);
+});
+captionInput.addEventListener("input",()=>renderMaker());
+const drop=$("#drop"),fileInput=$("#fileInput"),dropTitle=$("#dropTitle");
+function useFile(file,scroll){
+  if(!file||!file.type.startsWith("image/")){say("That doesn't look like a photo 🤔");return}
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    mkState.img=img;renderMaker();
+    dropTitle.textContent="Got it — "+(file.name.length>26?file.name.slice(0,24)+"…":file.name);
+    say("Beautiful. Now that's a story 🧡");
+    if(scroll)$("#maker").scrollIntoView({behavior:reduceMotion?"auto":"smooth"});
+    const r=mkCv.getBoundingClientRect();
+    spawnConfetti(innerWidth/2,clamp(r.top+r.height/2,80,innerHeight-80),46);
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+}
+fileInput.addEventListener("change",()=>useFile(fileInput.files[0]));
+$("#heroFile").addEventListener("change",e=>useFile(e.target.files[0],true));
+$("#finaleFile").addEventListener("change",e=>useFile(e.target.files[0],true));
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>useFile(e.dataTransfer.files[0]));
+$("#buyBtn").addEventListener("click",e=>{
+  spawnConfetti(e.clientX,e.clientY,130);
+  say("Demo checkout — but this puzzle deserves to exist 🧩");
+});
 
-        let isDragging = false;
+/* ============ GALLERY ============ */
+function jigsawPathD(cols,rows,seed){
+  const E=makeEdges(cols,rows,seed);let d="";
+  const seg=(x1,y1,x2,y2,s)=>{
+    if(!s){d+=`M${x1} ${y1}L${x2} ${y2}`;return}
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+    const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+    const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+    const mxx=x1+dx/2,myy=y1+dy/2;
+    const ax=mxx-ux*g,ay=myy-uy*g,bx=mxx+ux*g,by=myy+uy*g;
+    const fx=mxx+nx*(hh+t),fy=myy+ny*(hh+t);
+    const sweep=((bx-ax)*(fy-ay)-(by-ay)*(fx-ax))>0?0:1;
+    d+=`M${x1} ${y1}L${ax} ${ay}A${t} ${t} 0 1 ${sweep} ${bx} ${by}L${x2} ${y2}`;
+  };
+  const sw=100/cols,sh=100/rows;
+  for(let r=0;r<rows-1;r++)for(let c=0;c<cols;c++)seg(c*sw,(r+1)*sh,(c+1)*sw,(r+1)*sh,E.H[r][c]);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols-1;c++)seg((c+1)*sw,r*sh,(c+1)*sw,(r+1)*sh,E.V[r][c]);
+  return d;
+}
+function paintCity(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#191036");bg.addColorStop(1,"#3E1D66");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFE8A3";for(let i=0;i<70;i++){g.globalAlpha=.3+seeded(i)*.7;g.fillRect(seeded(i*3)*w,seeded(i*7)*h*.45,2,2)}
+  g.globalAlpha=1;
+  const cols2=["#FF6B4A","#3A86FF","#8338EC","#2EC4B6","#D2E823"];
+  for(let i=0;i<14;i++){
+    const bw=w*(.05+seeded(i*2)*.06),bx=i*w*.072,bh=h*(.25+seeded(i*5)*.45),by=h-bh;
+    g.fillStyle="#241743";g.fillRect(bx,by,bw,bh);
+    g.fillStyle=cols2[i%5];g.globalAlpha=.9;g.fillRect(bx,by,bw,4);g.globalAlpha=1;
+    for(let y=by+10;y<h-8;y+=11)for(let x=bx+4;x<bx+bw-5;x+=9)
+      if(seeded(x*y)>.5){g.fillStyle=seeded(x+y)>.85?"#FF9F1C":"#FFE8A3";g.globalAlpha=.75;g.fillRect(x,y,4,6)}
+    g.globalAlpha=1;
+  }
+}
+function paintMeadow(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#BDE9FF");bg.addColorStop(.5,"#E8F7C8");bg.addColorStop(1,"#7CC96B");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF3B0";g.beginPath();g.arc(w*.8,h*.2,w*.09,0,7);g.fill();
+  for(let i=0;i<80;i++){
+    const x=seeded(i*1.7)*w,y=h*.45+seeded(i*2.9)*h*.55,s=2+seeded(i*4.1)*5;
+    g.strokeStyle="#4E9B47";g.lineWidth=1.5;g.beginPath();g.moveTo(x,y);g.lineTo(x,y+9+s);g.stroke();
+    g.fillStyle=["#FF6B4A","#FFD60A","#FFFDF7","#FF9F1C","#8338EC"][i%5];
+    for(let p2=0;p2<5;p2++){const a=p2/5*Math.PI*2;g.beginPath();g.arc(x+Math.cos(a)*s,y+Math.sin(a)*s,s*.62,0,7);g.fill()}
+    g.fillStyle="#3A2B55";g.beginPath();g.arc(x,y,s*.45,0,7);g.fill();
+  }
+}
+function paintWave(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#FFEDB8");bg.addColorStop(.45,"#8FD6FF");bg.addColorStop(1,"#1D5FBF");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF3C4";g.beginPath();g.arc(w*.22,h*.22,w*.08,0,7);g.fill();
+  for(let l=0;l<5;l++){
+    g.fillStyle=["#2E7FD9","#2568B8","#1D5FBF","#174e9e","#123f83"][l];
+    g.beginPath();g.moveTo(0,h);
+    for(let x=0;x<=w;x+=6)g.lineTo(x,h*(.45+l*.11)+Math.sin(x/w*Math.PI*(2.2+l*.5)+l*2)*h*.06);
+    g.lineTo(w,h);g.fill();
+  }
+  g.strokeStyle="#EFFAFF";g.lineWidth=7;g.lineCap="round";
+  g.beginPath();g.moveTo(w*.16,h*.52);
+  g.bezierCurveTo(w*.4,h*.18,w*.78,h*.16,w*.8,h*.44);
+  g.bezierCurveTo(w*.81,h*.6,w*.62,h*.6,w*.6,h*.47);g.stroke();
+  g.fillStyle="#FFFDF7";
+  for(let i=0;i<28;i++){g.globalAlpha=.5+seeded(i)*.5;g.beginPath();g.arc(w*(.14+seeded(i*3)*.7),h*(.4+seeded(i*5)*.25),2+seeded(i*7)*5,0,7);g.fill()}
+  g.globalAlpha=1;
+}
+function paintAurora(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#0B1030");bg.addColorStop(1,"#232B5C");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF";for(let i=0;i<90;i++){g.globalAlpha=.25+seeded(i*9)*.75;g.fillRect(seeded(i*3)*w,seeded(i*7)*h*.8,1.6,1.6)}
+  g.globalAlpha=1;
+  [["#2EC4B6",.32],["#8338EC",.42],["#3A86FF",.52]].forEach(([col,base],ri)=>{
+    g.fillStyle=col;g.globalAlpha=.34;
+    g.beginPath();g.moveTo(0,h*base);
+    for(let x=0;x<=w;x+=8)g.lineTo(x,h*base+Math.sin(x/w*Math.PI*3+ri*2)*h*.09-x/w*h*.14);
+    for(let x=w;x>=0;x-=8)g.lineTo(x,h*base+Math.sin(x/w*Math.PI*3+ri*2)*h*.09-x/w*h*.14+h*.1);
+    g.fill();
+  });
+  g.globalAlpha=1;
+  g.fillStyle="#131A40";g.fillRect(0,h*.82,w,h*.18);
+  for(let i=0;i<9;i++){const x=i*w/9;g.fillStyle="#0B1030";g.beginPath();g.moveTo(x,h*.82);g.lineTo(x+w*.055,h*.68);g.lineTo(x+w*.11,h*.82);g.fill()}
+  g.fillStyle="#FFD60A";g.fillRect(w*.46,h*.75,10,7);
+}
+function paintCitrus(g,w,h){
+  g.fillStyle="#FFB4C0";g.fillRect(0,0,w,h);
+  const fr=[["#FF9F1C","#FFD98A"],["#FFD60A","#FFF3B0"],["#FF6B4A","#FFD1C2"],["#2EC4B6","#C9F5E9"]];
+  for(let i=0;i<11;i++){
+    const [main,flesh]=fr[i%4],x=seeded(i*3.3)*w,y=seeded(i*5.7)*h,r2=w*(.07+seeded(i*8)*.08);
+    g.save();g.translate(x,y);g.rotate(seeded(i)*7);
+    g.fillStyle=main;g.beginPath();g.arc(0,0,r2,0,7);g.fill();
+    g.fillStyle=flesh;g.beginPath();g.arc(0,0,r2*.82,0,7);g.fill();
+    g.fillStyle=main;g.globalAlpha=.8;
+    for(let s2=0;s2<8;s2++){const a=s2/8*Math.PI*2;g.beginPath();g.moveTo(0,0);g.arc(0,0,r2*.74,a+.06,a+Math.PI/4-.06);g.fill()}
+    g.globalAlpha=1;g.restore();
+  }
+}
+const GALLERY=[
+  {name:"Golden Hour, Us",sub:"the studio classic",tag:"Bestseller",paint:null},
+  {name:"Neon Insomnia",sub:"a city that hums",tag:"Night owl",paint:paintCity},
+  {name:"Wild Meadow",sub:"June in a box",tag:"Calming",paint:paintMeadow},
+  {name:"The Big Sip",sub:"one brave wave",tag:"Deep blue",paint:paintWave},
+  {name:"Aurora Motel",sub:"sky doing magic",tag:"Glow",paint:paintAurora},
+  {name:"Citrus Riot",sub:"loud & juicy",tag:"Kids love it",paint:paintCitrus}
+];
+function buildGallery(){
+  const grid=$("#galGrid");
+  GALLERY.forEach((item,i)=>{
+    const card=document.createElement("article");
+    card.className="gal-card rv";card.style.setProperty("--d",(i%3*.07)+"s");
+    card.tabIndex=0;card.setAttribute("role","button");
+    card.setAttribute("aria-label",`Puzzle "${item.name}" — send it to the workshop`);
+    card.innerHTML=`<span class="gal-tag">${item.tag}</span>
+      <div class="gal-art"><canvas width="480" height="320"></canvas>
+      <svg class="grid-lines" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${jigsawPathD(6,4,i*17+3)}" fill="none" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke"/></svg></div>
+      <div class="gal-meta"><div><h3>${item.name}</h3><small>${item.sub}</small></div><span class="gal-go">➜</span></div>`;
+    const cv=card.querySelector("canvas"),g=cv.getContext("2d");
+    if(i===0)g.drawImage(momentCanvas,0,0,900,900,-40,-60,560,560);else item.paint(g,480,320);
+    card.addEventListener("click",()=>{
+      const src=document.createElement("canvas");src.width=480;src.height=320;
+      src.getContext("2d").drawImage(cv,0,0);
+      mkState.img=src;renderMaker();
+      dropTitle.textContent=`Working on “${item.name}”`;
+      say(`“${item.name}” just moved into your workshop 🧩`);
+      $("#maker").scrollIntoView({behavior:reduceMotion?"auto":"smooth"});
+    });
+    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click()}});
+    io.observe(card);
+    grid.appendChild(card);
+  });
+}
 
-        // New function to find connected pieces
-        function findConnectedPieces(piece) {
-            let connectedGroup = [piece];
-            let newAdditions;
-            do {
-                newAdditions = [];
-                for (let groupPiece of connectedGroup) {
-                    for (let otherPiece of pieces) {
-                        if (!connectedGroup.includes(otherPiece)) {
-                            if (areConnected(groupPiece, otherPiece)) {
-                                newAdditions.push(otherPiece);
-                                // Magnetic behavior: Snap the connected piece to the correct position
-                                otherPiece.x = otherPiece.correctX + (groupPiece.x - groupPiece.correctX);
-                                otherPiece.y = otherPiece.correctY + (groupPiece.y - groupPiece.correctY);
-                            }
-                        }
-                    }
-                }
-                connectedGroup = connectedGroup.concat(newAdditions);
-            } while (newAdditions.length > 0);
-            return connectedGroup;
-        }
+/* ============ CONFETTI ============ */
+const confCv=$("#confetti"),confCtx=confCv.getContext("2d");
+const PAL=["#D2E823","#502274","#FF6B4A","#1E2330","#FFFFFF"];
+let confetti=[];
+function sizeConfetti(){confCv.width=innerWidth*DPR;confCv.height=innerHeight*DPR;
+  confCv.style.width=innerWidth+"px";confCv.style.height=innerHeight+"px"}
+function spawnConfetti(x,y,n){
+  if(reduceMotion)return;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,v=4+Math.random()*11;
+    confetti.push({x:x*DPR,y:y*DPR,vx:Math.cos(a)*v*DPR,vy:(Math.sin(a)*v-7)*DPR,
+      rot:Math.random()*7,vr:(Math.random()-.5)*.35,s:(7+Math.random()*11)*DPR,
+      col:PAL[i%PAL.length],life:1,e:{t:1,r:-1,b:1,l:-1}});
+  }
+}
+function stepConfetti(){
+  if(!confetti.length){confCtx.clearRect(0,0,confCv.width,confCv.height);return}
+  confCtx.clearRect(0,0,confCv.width,confCv.height);
+  confetti=confetti.filter(p=>p.life>0);
+  for(const p of confetti){
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.5*DPR;p.vx*=.985;p.rot+=p.vr;p.life-=.012;
+    confCtx.save();confCtx.translate(p.x,p.y);confCtx.rotate(p.rot);
+    confCtx.globalAlpha=clamp(p.life,0,1);confCtx.fillStyle=p.col;
+    piecePath(confCtx,-p.s/2,-p.s/2,p.s,p.s,p.e);confCtx.fill();
+    confCtx.restore();
+  }
+}
 
-        // New function to check if two pieces are connected
-        function areConnected(piece1, piece2) {
-            const threshold = 10; // Adjust this value for stricter or looser connections
-            const correctDx = piece1.correctX - piece2.correctX;
-            const correctDy = piece1.correctY - piece2.correctY;
-            const actualDx = piece1.x - piece2.x;
-            const actualDy = piece1.y - piece2.y;
-
-            return Math.abs(actualDx - correctDx) < threshold && Math.abs(actualDy - correctDy) < threshold;
-        }
-
-        // Modified event listeners to support both mouse and touch events
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('mouseleave', handleEnd);
-
-        canvas.addEventListener('touchstart', handleStart);
-        canvas.addEventListener('touchmove', handleMove);
-        canvas.addEventListener('touchend', handleEnd);
-        canvas.addEventListener('touchcancel', handleEnd);
-
-        function getEventCoordinates(e) {
-            let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            return {
-                clientX: (clientX - rect.left) * scaleX,
-                clientY: (clientY - rect.top) * scaleY
-            };
-        }
-
-        function handleStart(e) {
-            e.preventDefault();
-            const { clientX, clientY } = getEventCoordinates(e);
-            console.log('Start at:', clientX, clientY);
-            
-            for (let i = pieces.length - 1; i >= 0; i--) {
-                let piece = pieces[i];
-                if (
-                    clientX >= piece.x && clientX <= piece.x + pieceWidth &&
-                    clientY >= piece.y && clientY <= piece.y + pieceHeight
-                ) {
-                    selectedPiece = piece;
-                    // Calculate offset from the touch point to the piece's top-left corner
-                    offsetX = clientX - piece.x;
-                    offsetY = clientY - piece.y;
-                    selectedGroup = findConnectedPieces(piece);
-                    console.log('Selected group:', selectedGroup);
-                    // Move the selected group to the end of the pieces array to render on top
-                    pieces = pieces.filter(p => !selectedGroup.includes(p)).concat(selectedGroup);
-                    isDragging = true;
-                    drawPuzzle();
-                    break;
-                }
-            }
-        }
-
-        function handleMove(e) {
-            e.preventDefault();
-            if (!isDragging) return;
-            
-            const { clientX, clientY } = getEventCoordinates(e);
-            
-            if (selectedPiece) {
-                // Calculate new position based on the original offset
-                const newX = clientX - offsetX;
-                const newY = clientY - offsetY;
-                
-                const dx = newX - selectedPiece.x;
-                const dy = newY - selectedPiece.y;
-                
-                for (let groupPiece of selectedGroup) {
-                    groupPiece.x += dx;
-                    groupPiece.y += dy;
-                }
-                
-                drawPuzzle();
-                
-                let newGroup = findConnectedPieces(selectedPiece);
-                if (newGroup.length > selectedGroup.length) {
-                    selectedGroup = newGroup;
-                    drawPuzzle();
-                }
-            }
-        }
-
-        function handleEnd(e) {
-            e.preventDefault();
-            isDragging = false;
-            
-            if (selectedPiece) {
-                console.log('End, group released:', selectedGroup);
-                snapGroup(selectedGroup);
-                drawPuzzle();
-                if (checkPuzzleSolved()) {
-                    alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
-                    stopTimer();
-                }
-            }
-            selectedPiece = null;
-            selectedGroup = [];
-        }
-
-        // Modified snap function to handle groups
-        function snapGroup(group) {
-            const snapThreshold = 20; // pixels
-            let snapped = false;
-            for (let piece of group) {
-                if (Math.abs(piece.x - piece.correctX) < snapThreshold && 
-                    Math.abs(piece.y - piece.correctY) < snapThreshold) {
-                    const dx = piece.correctX - piece.x;
-                    const dy = piece.correctY - piece.y;
-                    for (let groupPiece of group) {
-                        groupPiece.x += dx;
-                        groupPiece.y += dy;
-                    }
-                    snapped = true;
-                    break;
-                }
-            }
-            if (snapped) {
-                // After snapping, check for additional connections
-                let allConnected = findConnectedPieces(group[0]);
-                // Snap all connected pieces to their correct positions
-                for (let piece of allConnected) {
-                    piece.x = piece.correctX;
-                    piece.y = piece.correctY;
-                }
-            }
-        }
-
-        // Check if the puzzle is solved
-        function checkPuzzleSolved() {
-            const solved = pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY);
-            if (solved) {
-                stopTimer();
-                alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
-            }
-            return solved;
-        }
-
-        // Add timer functionality
-        let startTime;
-        let timerInterval;
-        const timerElement = document.getElementById('timer');
-
-        function startTimer() {
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function updateTimer() {
-            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
-            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
-            timerElement.textContent = `${minutes}:${seconds}`;
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-    </script>
+/* ============ INIT ============ */
+sizeConfetti();buildGallery();refreshMeta();renderMaker();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>renderMaker());
+addEventListener("resize",sizeConfetti);
+(function loop(){sceneTick();if(!reduceMotion)stepConfetti();requestAnimationFrame(loop)})();
+</script>
 </body>
 </html>
