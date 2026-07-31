@@ -1,422 +1,1146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Jigsaw Puzzle Game</title>
-    <style>
-        :root {
-            --background: #09090b;
-            --foreground: #fafafa;
-            --primary: #6366f1;
-            --primary-foreground: #fafafa;
-            --secondary: #27272a;
-            --secondary-foreground: #fafafa;
-            --border: #27272a;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background);
-            color: var(--foreground);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-        canvas {
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            max-width: 100%;
-            height: auto;
-            touch-action: none; /* Prevent default touch actions */
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        button {
-            background-color: var(--secondary);
-            color: var(--secondary-foreground);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: var(--primary);
-        }
-        #startButton {
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-        }
-        #share-link {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #share-link a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        .timer {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .selected {
-            box-shadow: 0 0 10px 5px var(--primary);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PieceTale — Your story, in a thousand pieces</title>
+<meta name="description" content="Turn your photos into beautiful custom jigsaw puzzles. Upload a moment, watch it shatter into art, and piece your story back together — or fall for one from our gallery.">
+<meta property="og:title" content="PieceTale — Your story, in a thousand pieces">
+<meta property="og:description" content="Custom jigsaw puzzles made from your photos. Every picture holds a story — tell yours piece by piece.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23FF4D6D' d='M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --cream:#FFF6EA; --paper:#FFFDF7; --ink:#231A4F; --ink-soft:#4A4370;
+  --coral:#FF4D6D; --tangerine:#FF9F1C; --sun:#FFD60A; --mint:#2EC4B6;
+  --sky:#3A86FF; --grape:#8338EC; --blush:#FFE3E8;
+  --disp:"Fraunces",Georgia,"Times New Roman",serif;
+  --ui:"Space Grotesk","Avenir Next","Segoe UI",Helvetica,Arial,sans-serif;
+  --hand:"Caveat","Segoe Script","Comic Sans MS",cursive;
+  --rad:26px;
+  --shadow-pop:0 18px 50px -12px rgba(35,26,79,.28);
+  --e-spring:cubic-bezier(.22,1.4,.36,1);
+  --e-out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip}
+body{
+  font-family:var(--ui);color:var(--ink);background:var(--cream);
+  line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--sun);color:var(--ink)}
+img,canvas,svg,video{display:block;max-width:100%}
+a{color:inherit}
+button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:none}
+h1,h2,h3{font-family:var(--disp);font-weight:700;line-height:1.04;letter-spacing:-.02em}
+.center{text-align:center}
+.wrap{width:min(1180px,92vw);margin-inline:auto}
+:focus-visible{outline:3px dashed var(--coral);outline-offset:4px;border-radius:6px}
+
+/* ============ GRAIN + BLOB BACKDROP ============ */
+body::after{
+  content:"";position:fixed;inset:-50%;z-index:99;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 9s steps(6) infinite;
+}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)}16%{transform:translate(-3%,2%)}
+  33%{transform:translate(2%,-3%)}50%{transform:translate(-2%,-2%)}
+  66%{transform:translate(3%,2%)}83%{transform:translate(-1%,3%)}
+}
+.blobs{position:fixed;inset:0;z-index:-1;overflow:hidden;filter:blur(70px) saturate(1.15)}
+.blob{position:absolute;border-radius:50%;opacity:.5;mix-blend-mode:multiply;animation:blobFloat 26s ease-in-out infinite alternate}
+.blob.b1{width:46vw;height:46vw;left:-12vw;top:-14vw;background:radial-gradient(circle,#FFD9A0,#FFB4C0)}
+.blob.b2{width:40vw;height:40vw;right:-10vw;top:8vh;background:radial-gradient(circle,#BFE8FF,#D9C7FF);animation-delay:-8s}
+.blob.b3{width:38vw;height:38vw;left:22vw;bottom:-20vw;background:radial-gradient(circle,#C9F5E9,#FFF3B0);animation-delay:-16s}
+@keyframes blobFloat{
+  from{transform:translate(0,0) scale(1)}
+  50%{transform:translate(6vw,4vh) scale(1.14) rotate(12deg)}
+  to{transform:translate(-4vw,-3vh) scale(.94) rotate(-8deg)}
+}
+
+/* ============ CURSOR ============ */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;z-index:1000;pointer-events:none;will-change:transform}
+.cursor-dot{width:10px;height:10px;border-radius:50%;background:var(--coral)}
+.cursor-ring{width:42px;height:42px;margin:-16px;transition:opacity .3s}
+.cursor-ring svg{width:100%;height:100%;transition:transform .35s var(--e-spring)}
+.cursor-ring path{fill:none;stroke:var(--ink);stroke-width:4;opacity:.55}
+body.cursor-hot .cursor-ring svg{transform:scale(1.65) rotate(45deg)}
+body.cursor-hot .cursor-ring path{stroke:var(--coral);opacity:.95}
+@media (hover:none),(pointer:coarse){.cursor-dot,.cursor-ring{display:none}}
+
+/* ============ PROGRESS BAR ============ */
+.progress{position:fixed;top:0;left:0;right:0;height:6px;z-index:120;background:rgba(35,26,79,.08)}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--coral),var(--tangerine),var(--sun),var(--mint),var(--sky),var(--grape));border-radius:0 99px 99px 0}
+
+/* ============ NAV ============ */
+.nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:110;
+  display:flex;align-items:center;gap:8px;padding:9px 12px 9px 16px;border-radius:99px;
+  background:rgba(255,253,247,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1.5px solid rgba(35,26,79,.1);box-shadow:0 10px 32px -14px rgba(35,26,79,.35);
+  transition:transform .5s var(--e-out),box-shadow .3s;white-space:nowrap}
+.nav.hidden{transform:translate(-50%,-140%)}
+.nav .logo{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:800;font-size:1.18rem;text-decoration:none;margin-right:6px}
+.nav .logo svg{width:26px;height:26px;transition:transform .5s var(--e-spring)}
+.nav .logo:hover svg{transform:rotate(140deg) scale(1.12)}
+.nav a.nl{text-decoration:none;font-weight:600;font-size:.92rem;padding:8px 13px;border-radius:99px;transition:background .25s,color .25s}
+.nav a.nl:hover{background:var(--blush);color:var(--coral)}
+.nav .cta{margin-left:6px}
+@media (max-width:720px){.nav a.nl{display:none}.nav{gap:10px}}
+
+/* ============ BUTTONS ============ */
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;justify-content:center;
+  font-family:var(--ui);font-weight:700;font-size:1.02rem;text-decoration:none;
+  padding:16px 30px;border-radius:99px;border:2.5px solid var(--ink);
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 5px 0 var(--ink);transform:translateY(0);
+  transition:transform .18s var(--e-out),box-shadow .18s var(--e-out),background .25s;will-change:transform}
+.btn:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--ink)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:linear-gradient(100deg,var(--coral),var(--tangerine));color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.12)}
+.btn.sun{background:var(--sun)}
+.btn.mint{background:var(--mint);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.15)}
+.btn.sm{padding:11px 20px;font-size:.9rem;box-shadow:0 4px 0 var(--ink)}
+.btn .arr{display:inline-block;transition:transform .3s var(--e-spring)}
+.btn:hover .arr{transform:translateX(6px) rotate(-8deg)}
+
+/* ============ HERO ============ */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:130px 4vw 90px;overflow:clip}
+#heroPieces{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hero-inner{position:relative;z-index:2;max-width:1050px}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:.86rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:10px 18px;border-radius:99px;border:2px solid var(--ink);background:var(--paper);box-shadow:0 4px 0 var(--ink);
+  margin-bottom:30px;animation:kickerPop .9s var(--e-spring) both .15s}
+.kicker .dot{width:9px;height:9px;border-radius:50%;background:var(--coral);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.5}}
+@keyframes kickerPop{from{opacity:0;transform:translateY(24px) scale(.8) rotate(-4deg)}}
+.hero h1{font-size:clamp(3rem,9.2vw,7.6rem);font-weight:800}
+.hero h1 .w{display:inline-block;overflow:hidden;vertical-align:bottom}
+.hero h1 .w>i{display:inline-block;font-style:normal;transform:translateY(115%) rotate(6deg);animation:wordUp 1s var(--e-out) forwards}
+.hero h1 .shout{font-style:italic;background:linear-gradient(92deg,var(--coral) 10%,var(--tangerine) 45%,var(--grape) 90%);
+  background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite,wordUp 1s var(--e-out) forwards!important;padding-right:.06em}
+@keyframes wordUp{to{transform:translateY(0) rotate(0)}}
+@keyframes shimmer{0%{background-position:0% 0}100%{background-position:220% 0}}
+.hero .piece-i{display:inline-block;width:.85em;height:.85em;vertical-align:-.07em;margin:0 .04em;
+  animation:spinPiece 7s ease-in-out infinite}
+@keyframes spinPiece{0%,100%{transform:rotate(-8deg) scale(1)}25%{transform:rotate(100deg) scale(1.12)}55%{transform:rotate(80deg)}75%{transform:rotate(190deg) scale(1.06)}}
+.hero .sub{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--ink-soft);max-width:640px;margin:28px auto 40px;
+  opacity:0;animation:fadeUp .9s var(--e-out) forwards 1s}
+.hero .sub b{color:var(--ink)}
+.hero-ctas{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;opacity:0;animation:fadeUp .9s var(--e-out) forwards 1.25s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-hint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-size:.8rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);opacity:0;animation:fadeUp 1s var(--e-out) forwards 2s}
+.hero-hint .mouse{width:26px;height:42px;border:2.5px solid var(--ink-soft);border-radius:14px;position:relative}
+.hero-hint .mouse::after{content:"";position:absolute;top:7px;left:50%;width:5px;height:9px;margin-left:-2.5px;border-radius:4px;background:var(--coral);animation:wheel 1.6s ease-in-out infinite}
+@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(14px);opacity:0}100%{opacity:0}}
+
+/* ============ MARQUEE ============ */
+.marquee{position:relative;overflow:clip;padding:16px 0;border-top:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);background:var(--sun);transform:rotate(-1.3deg) scale(1.02);z-index:5}
+.marquee.alt{background:var(--mint);transform:rotate(1.2deg) scale(1.02)}
+.marquee .track{display:flex;gap:0;width:max-content;animation:slide 26s linear infinite}
+.marquee.alt .track{animation-direction:reverse}
+.marquee span{font-family:var(--disp);font-weight:800;font-style:italic;font-size:1.35rem;white-space:nowrap;padding:0 14px;display:flex;align-items:center;gap:24px}
+.marquee svg{width:22px;height:22px;flex:none;animation:spinPiece 6s linear infinite}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ============ CHAPTER HEADINGS ============ */
+.chapter{padding:110px 0 40px}
+.ch-tag{display:inline-block;font-family:var(--hand);font-size:1.7rem;color:var(--coral);transform:rotate(-2deg);margin-bottom:10px}
+.chapter h2{font-size:clamp(2.3rem,5.6vw,4.4rem)}
+.chapter h2 .hl{position:relative;white-space:nowrap}
+.chapter h2 .hl::after{content:"";position:absolute;left:-2%;right:-2%;bottom:.06em;height:.34em;z-index:-1;border-radius:6px;
+  background:linear-gradient(90deg,var(--sun),var(--tangerine));transform:scaleX(0);transform-origin:left;transition:transform .8s var(--e-out) .2s}
+.chapter.in h2 .hl::after{transform:scaleX(1)}
+.chapter p.lead{font-size:clamp(1.02rem,1.7vw,1.25rem);color:var(--ink-soft);max-width:620px;margin-top:18px}
+
+/* ============ STORY SCENE (sticky shatter) ============ */
+.scene{position:relative;height:380vh}
+.scene-sticky{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;justify-content:center;overflow:clip}
+.photo-stage{position:relative;width:min(58vmin,520px);aspect-ratio:1}
+.polaroid{position:absolute;inset:-4.5% -4.5% -16%;background:var(--paper);border-radius:12px;
+  box-shadow:var(--shadow-pop);transition:transform .1s linear}
+.polaroid .tape{position:absolute;top:-16px;left:50%;width:120px;height:34px;transform:translateX(-50%) rotate(-3deg);
+  background:rgba(255,214,10,.65);border-left:2px dashed rgba(35,26,79,.2);border-right:2px dashed rgba(35,26,79,.2)}
+.polaroid .cap{position:absolute;left:0;right:0;bottom:1.5%;text-align:center;font-family:var(--hand);font-size:clamp(1.3rem,3vmin,1.9rem);color:var(--ink-soft)}
+.tiles{position:absolute;inset:0;border-radius:6px}
+.tile{position:absolute;background-size:400% 400%;will-change:transform,opacity;border-radius:2px;
+  box-shadow:0 6px 24px -8px rgba(35,26,79,.35)}
+.jigsaw-overlay{position:absolute;inset:0;opacity:0;pointer-events:none}
+.scene-cap{position:absolute;left:50%;transform:translateX(-50%);width:min(92vw,700px);text-align:center;pointer-events:none}
+.scene-cap.top{top:13svh}.scene-cap.bottom{bottom:6svh}
+.scene-cap h3{font-size:clamp(1.5rem,3.9vw,2.7rem);opacity:0;transform:translateY(26px) scale(.96);transition:opacity .5s,transform .6s var(--e-out)}
+.scene-cap h3.on{opacity:1;transform:none}
+.scene-cap h3 em{font-style:italic;color:var(--coral)}
+.scene-cap h3 .m{color:var(--mint)}
+.scene-cnt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;text-align:center;opacity:0;transition:opacity .4s;pointer-events:none}
+.scene-cnt.on{opacity:1}
+.scene-cnt b{display:block;font-family:var(--disp);font-size:clamp(3rem,9vmin,5.5rem);font-weight:800;color:#fff;text-shadow:0 4px 30px rgba(35,26,79,.5)}
+.scene-cnt span{font-weight:700;letter-spacing:.2em;text-transform:uppercase;font-size:.8rem;color:#fff;text-shadow:0 2px 12px rgba(35,26,79,.6)}
+
+/* ============ STATS ============ */
+.stats{display:flex;justify-content:center;gap:clamp(20px,6vw,90px);flex-wrap:wrap;padding:80px 4vw 30px}
+.stat{text-align:center;transform:rotate(var(--r,0deg))}
+.stat b{display:block;font-family:var(--disp);font-weight:800;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1}
+.stat b i{font-style:normal;color:var(--coral)}
+.stat span{font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;font-size:.82rem}
+
+/* ============ MAKER ============ */
+.maker{position:relative;padding:40px 0 120px}
+.maker-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(24px,4vw,60px);align-items:start;margin-top:50px}
+@media (max-width:900px){.maker-grid{grid-template-columns:1fr}}
+.preview-card{position:relative;background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--rad);
+  box-shadow:0 8px 0 var(--ink),var(--shadow-pop);padding:clamp(14px,2vw,26px);transform:rotate(-1deg)}
+.preview-card::before{content:"your puzzle, live";position:absolute;top:-18px;right:26px;font-family:var(--hand);font-size:1.4rem;
+  color:var(--ink);background:var(--sun);border:2px solid var(--ink);padding:2px 16px;border-radius:99px;transform:rotate(2.5deg);box-shadow:0 3px 0 var(--ink)}
+#makerCanvas{width:100%;aspect-ratio:3/2;border-radius:14px;background:
+  repeating-conic-gradient(rgba(35,26,79,.06) 0 25%,transparent 0 50%) 0 0/28px 28px, var(--blush)}
+.preview-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.pieces-out{font-family:var(--disp);font-weight:800;font-size:1.3rem}
+.pieces-out i{font-style:normal;color:var(--coral)}
+.controls{display:flex;flex-direction:column;gap:26px}
+.ctl{background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--rad);padding:22px 24px;box-shadow:0 6px 0 var(--ink);
+  transition:transform .3s var(--e-spring)}
+.ctl:hover{transform:translateY(-3px) rotate(.4deg)}
+.ctl h4{font-family:var(--ui);font-weight:700;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ctl h4 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--sun);font-family:var(--disp);font-size:.85rem}
+.drop{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  border:2.5px dashed var(--ink-soft);border-radius:18px;padding:26px 18px;cursor:pointer;transition:all .3s;overflow:hidden}
+.drop:hover,.drop.over{border-color:var(--coral);background:var(--blush);transform:scale(1.015)}
+.drop.over{border-style:solid}
+.drop .big{font-size:2rem;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+.drop b{font-size:1.05rem}
+.drop span{font-size:.85rem;color:var(--ink-soft)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{border:2px solid var(--ink);border-radius:99px;padding:9px 18px;font-weight:700;font-size:.95rem;background:var(--paper);
+  box-shadow:0 3px 0 var(--ink);transition:all .2s var(--e-out)}
+.pill:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--ink)}
+.pill.on{background:var(--ink);color:var(--sun);transform:translateY(1px);box-shadow:0 2px 0 var(--ink)}
+.cap-input{width:100%;border:2px solid var(--ink);border-radius:14px;padding:12px 16px;font-family:var(--hand);font-size:1.5rem;color:var(--ink);background:var(--paper)}
+.cap-input:focus{outline:3px solid var(--sun)}
+.maker-buy{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--ink);color:var(--paper);
+  border-radius:var(--rad);padding:20px 24px;box-shadow:var(--shadow-pop)}
+.price b{font-family:var(--disp);font-size:2rem;color:var(--sun)}
+.price span{display:block;font-size:.8rem;opacity:.75}
+
+/* ============ GALLERY ============ */
+.gallery{padding:20px 0 110px;position:relative}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.6vw,34px);margin-top:54px;perspective:1400px}
+@media (max-width:980px){.gal-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.gal-grid{grid-template-columns:1fr}}
+.gal-card{position:relative;border:2.5px solid var(--ink);border-radius:22px;background:var(--paper);overflow:hidden;
+  box-shadow:0 7px 0 var(--ink);transform-style:preserve-3d;transition:transform .25s var(--e-out),box-shadow .25s;cursor:pointer}
+.gal-card:hover{box-shadow:0 16px 40px -10px rgba(35,26,79,.45)}
+.gal-art{position:relative;aspect-ratio:3/2;overflow:hidden}
+.gal-art canvas{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--e-out)}
+.gal-card:hover .gal-art canvas{transform:scale(1.07) rotate(.6deg)}
+.gal-art .grid-lines{position:absolute;inset:0;opacity:0;transition:opacity .45s;mix-blend-mode:overlay}
+.gal-card:hover .grid-lines{opacity:.85}
+.gal-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px}
+.gal-meta h3{font-size:1.25rem}
+.gal-meta small{display:block;font-family:var(--ui);font-weight:600;color:var(--ink-soft);font-size:.82rem;margin-top:2px}
+.gal-go{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);
+  background:var(--sun);font-size:1.1rem;transition:transform .35s var(--e-spring),background .3s}
+.gal-card:hover .gal-go{transform:rotate(-35deg) scale(1.15);background:var(--coral);color:#fff}
+.gal-tag{position:absolute;top:14px;left:14px;z-index:2;font-family:var(--hand);font-size:1.25rem;background:var(--paper);
+  border:2px solid var(--ink);border-radius:99px;padding:1px 14px;transform:rotate(-3deg);box-shadow:0 3px 0 var(--ink)}
+
+/* ============ VOICES ============ */
+.voices{padding:40px 0 120px}
+.voice-row{display:flex;gap:24px;width:max-content;padding:30px 0;animation:slide 42s linear infinite}
+.voices .lane{overflow:clip;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.voices .lane:hover .voice-row{animation-play-state:paused}
+.voice{width:340px;flex:none;background:var(--paper);border:2.5px solid var(--ink);border-radius:22px;padding:22px 24px;
+  box-shadow:0 6px 0 var(--ink);transform:rotate(var(--r,0deg))}
+.voice p{font-family:var(--disp);font-style:italic;font-size:1.06rem;line-height:1.45}
+.voice .who{display:flex;align-items:center;gap:12px;margin-top:16px}
+.voice .ava{width:42px;height:42px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;font-size:1.2rem}
+.voice .who b{display:block;font-size:.95rem}
+.voice .who span{font-size:.8rem;color:var(--ink-soft)}
+.voice .stars{color:var(--tangerine);letter-spacing:2px;margin-top:2px}
+
+/* ============ FINAL CTA ============ */
+.finale{position:relative;margin:40px 0 0;padding:130px 4vw 150px;background:var(--ink);color:var(--paper);overflow:clip;
+  border-top:3px solid var(--ink)}
+.finale::before{content:"";position:absolute;inset:0;opacity:.35;background:
+  radial-gradient(60% 90% at 15% 10%,rgba(255,77,109,.55),transparent 60%),
+  radial-gradient(50% 80% at 85% 20%,rgba(58,134,255,.5),transparent 60%),
+  radial-gradient(70% 90% at 50% 110%,rgba(255,214,10,.4),transparent 55%)}
+#finaleCanvas{position:absolute;inset:0;pointer-events:none}
+.finale .wrap{position:relative;z-index:2;text-align:center}
+.finale .ch-tag{color:var(--sun)}
+.finale h2{font-size:clamp(2.6rem,7vw,5.6rem);color:var(--paper)}
+.finale h2 em{font-style:italic;background:linear-gradient(92deg,var(--sun),var(--tangerine),var(--coral));-webkit-background-clip:text;background-clip:text;color:transparent}
+.finale p{color:rgba(255,253,247,.8);max-width:560px;margin:22px auto 42px;font-size:1.12rem}
+.finale .btn{border-color:var(--paper);box-shadow:0 5px 0 rgba(255,253,247,.9)}
+.finale .btn:hover{box-shadow:0 8px 0 rgba(255,253,247,.9)}
+.finale .btn.ghost{background:transparent;color:var(--paper)}
+
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:rgba(255,253,247,.75);padding:10px 4vw 40px}
+.foot-word{font-family:var(--disp);font-weight:800;font-size:clamp(3.4rem,13vw,11rem);line-height:.95;text-align:center;
+  background:linear-gradient(180deg,rgba(255,253,247,.32),rgba(255,253,247,.04));-webkit-background-clip:text;background-clip:text;color:transparent;user-select:none}
+.foot-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:30px;font-size:.9rem}
+.foot-row a{text-decoration:none;margin-left:18px;transition:color .2s}
+.foot-row a:hover{color:var(--sun)}
+
+/* ============ TOAST / CONFETTI / REVEAL ============ */
+#confetti{position:fixed;inset:0;z-index:900;pointer-events:none}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,150%);z-index:950;
+  background:var(--ink);color:var(--paper);border-radius:99px;padding:14px 26px;font-weight:700;
+  box-shadow:var(--shadow-pop);transition:transform .5s var(--e-spring);display:flex;gap:10px;align-items:center;max-width:92vw}
+.toast.on{transform:translate(-50%,0)}
+.toast .em{font-size:1.2rem}
+.rv{opacity:0;transform:translateY(46px) rotate(var(--rr,0deg));transition:opacity .8s var(--e-out),transform .9s var(--e-out);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:translateY(0) rotate(0)}
+.squig{width:190px;margin:8px auto 0}
+.squig path{stroke-dasharray:600;stroke-dashoffset:600}
+.in .squig path,.squig.go path{animation:draw 1.4s var(--e-out) forwards .3s}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+@media (max-width:720px){
+  .hero-ctas .btn{width:min(340px,86vw)}
+  .scene{height:330vh}
+}
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+  .marquee .track{animation:none}
+  .voice-row{animation:none;width:auto;flex-wrap:wrap}
+  .hero h1 .w>i{transform:none}
+  .hero .sub,.hero-ctas,.hero-hint{opacity:1}
+  .cursor-dot,.cursor-ring{display:none}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>AI Jigsaw Puzzle Game</h1>
-        <div class="timer" id="timer">00:00</div>
-        <canvas id="puzzleCanvas" width="800" height="1200"></canvas>
-        <div class="button-group">
-            <button id="startButton">Start Game</button>
-            <button id="shuffleButton" style="display: none;">Shuffle</button>
-            <button id="previewButton" style="display: none;">Preview Image</button>
-            <button id="organizeButton" style="display: none;">Organize Pieces</button>
-        </div>
-        <div id="share-link"></div>
+<div class="blobs" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div class="toast" id="toast" role="status"><span class="em">🧩</span><span id="toastMsg">Hello!</span></div>
+
+<nav class="nav" id="nav" aria-label="Main">
+  <a class="logo" href="#top" data-hot>
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path fill="#FF4D6D" stroke="#231A4F" stroke-width="4" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg>
+    PieceTale
+  </a>
+  <a class="nl" href="#story" data-hot>The story</a>
+  <a class="nl" href="#maker" data-hot>Make yours</a>
+  <a class="nl" href="#gallery" data-hot>Gallery</a>
+  <a class="btn primary sm cta" href="#maker" data-hot>Start your puzzle</a>
+</nav>
+
+<header class="hero" id="top">
+  <canvas id="heroPieces" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <span class="kicker"><span class="dot"></span> Personalised jigsaw puzzles, cut from your life</span>
+    <h1 aria-label="Your story, in a thousand pieces.">
+      <span class="w"><i style="animation-delay:.25s">Your</i></span>
+      <span class="w"><i style="animation-delay:.34s">story,</i></span><br>
+      <span class="w"><i style="animation-delay:.48s">in&nbsp;a</i></span>
+      <span class="w"><i class="shout" style="animation-delay:.6s">thousand</i></span>
+      <span class="w"><i style="animation-delay:.74s">pieces<svg class="piece-i" viewBox="0 0 64 64" aria-hidden="true"><path fill="#2EC4B6" stroke="#231A4F" stroke-width="4" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg></i></span>
+    </h1>
+    <p class="sub">That photo you can't stop looking at? We cut it into a jigsaw puzzle you'll never stop piecing together. <b>Upload your own moment</b> — or adopt one from our gallery.</p>
+    <div class="hero-ctas">
+      <a class="btn primary" href="#maker" data-hot>📸 Upload your photo <span class="arr">→</span></a>
+      <a class="btn sun" href="#gallery" data-hot>🖼️ Browse the gallery <span class="arr">→</span></a>
     </div>
+  </div>
+  <div class="hero-hint"><div class="mouse"></div>scroll — the story starts here</div>
+</header>
 
-    <script>
-        const canvas = document.getElementById('puzzleCanvas');
-        const ctx = canvas.getContext('2d');
-        const shuffleButton = document.getElementById('shuffleButton');
-        const previewButton = document.getElementById('previewButton');
-        const organizeButton = document.getElementById('organizeButton');
-        const shareLinkDiv = document.getElementById('share-link');
-        const startButton = document.getElementById('startButton');
+<div class="marquee" aria-hidden="true"><div class="track" id="mq1">
+  <span>Every picture holds a story <svg viewBox="0 0 64 64"><path fill="#231A4F" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg> 24 to 1000 pieces <svg viewBox="0 0 64 64"><path fill="#231A4F" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg> Cut from your photos <svg viewBox="0 0 64 64"><path fill="#231A4F" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg> Slow evenings, loud laughter <svg viewBox="0 0 64 64"><path fill="#231A4F" d="M14 8h16a6 6 0 1 1 12 0h8a6 6 0 0 1 6 6v8a6 6 0 1 1 0 12v14a6 6 0 0 1-6 6H36a6 6 0 1 0-12 0H14a6 6 0 0 1-6-6V34a6 6 0 1 0 0-12V14a6 6 0 0 1 6-6z"/></svg> </span>
+</div></div>
 
-        let img = new Image();
-        img.src = 'https://cdn.midjourney.com/4e11828c-6033-40d7-9670-65fcee38bead/0_3.png'; // Replace with your AI-generated image link
+<section class="scene" id="story" aria-label="How a photo becomes a puzzle">
+  <div class="scene-sticky">
+    <div class="scene-cap top">
+      <h3 id="cap1">Chapter one — <em>it starts with a moment.</em></h3>
+      <h3 id="cap2" style="position:absolute;top:0;left:0;right:0">Then we <em>shatter it.</em> Beautifully.</h3>
+      <h3 id="cap3" style="position:absolute;top:0;left:0;right:0">And <span class="m">you</span> bring it back — <em>piece by piece.</em></h3>
+    </div>
+    <div class="photo-stage">
+      <div class="polaroid" id="polaroid">
+        <span class="tape"></span>
+        <span class="cap" id="polaroidCap">golden hour, us, forever ✦</span>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <svg class="jigsaw-overlay" id="jigsawOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="scene-cnt" id="sceneCnt"><b id="pieceCount">0</b><span>pieces of you</span></div>
+    </div>
+    <div class="scene-cap bottom">
+      <h3 id="cap4">That's the whole magic. <em>Your memory, remade by your own hands.</em></h3>
+    </div>
+  </div>
+</section>
 
-        const rows = 4, cols = 6;
-        let pieces = [];
-        let pieceWidth, pieceHeight;
+<div class="stats" id="stats">
+  <div class="stat rv" style="--r:-2deg"><b><i data-count="1000">0</i></b><span>pieces max</span></div>
+  <div class="stat rv" style="--r:1.5deg;--d:.1s"><b><i data-count="48">0</i>h</b><span>from photo to doorstep</span></div>
+  <div class="stat rv" style="--r:-1deg;--d:.2s"><b><i data-count="12482">0</i></b><span>stories pieced together</span></div>
+  <div class="stat rv" style="--r:2deg;--d:.3s"><b>∞</b><span>excuses to slow down</span></div>
+</div>
 
-        let selectedGroup = [];
+<div class="marquee alt" aria-hidden="true"><div class="track" id="mq2">
+  <span>Upload it ✦ We cut it ✦ You piece it back ✦ Frame it forever ✦ </span>
+</div></div>
 
-        // Initialize the puzzle pieces in a chaotic distribution
-        function initPuzzle() {
-            console.log('Initializing puzzle pieces');
-            pieces = [];
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    pieces.push({
-                        sx: col * pieceWidth,
-                        sy: row * pieceHeight,
-                        x: Math.random() * (canvas.width - pieceWidth),
-                        y: Math.random() * (canvas.height - pieceHeight),
-                        correctX: col * pieceWidth,
-                        correctY: row * pieceHeight
-                    });
-                }
-            }
-            console.log('Puzzle pieces initialized:', pieces);
-        }
+<section class="maker" id="maker">
+  <div class="wrap">
+    <div class="chapter rv" data-chapter>
+      <span class="ch-tag">chapter two · the workshop</span>
+      <h2>Make it <span class="hl">yours.</span></h2>
+      <p class="lead">Drop in the photo that makes you feel something. Watch it become a real jigsaw before your eyes — then tune it until it's perfectly, stubbornly you.</p>
+    </div>
+    <div class="maker-grid">
+      <div class="preview-card rv" style="--rr:-2deg">
+        <canvas id="makerCanvas" width="1200" height="800" aria-label="Live preview of your puzzle"></canvas>
+        <div class="preview-tools">
+          <div class="pieces-out"><i id="piecesLabel">96</i> pieces · <span id="sizeLabel">46×31 cm</span></div>
+          <button class="btn sm sun" id="scatterBtn" data-hot>💥 Scatter it</button>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctl rv" style="--d:.05s">
+          <h4><span class="n">1</span> Your moment</h4>
+          <label class="drop" id="drop" data-hot>
+            <input type="file" id="fileInput" accept="image/*" aria-label="Upload your photo">
+            <span class="big">📸</span>
+            <b id="dropTitle">Drag a photo here — or tap</b>
+            <span>JPG or PNG · it never leaves your browser in this demo</span>
+          </label>
+        </div>
+        <div class="ctl rv" style="--d:.12s">
+          <h4><span class="n">2</span> How long should it take?</h4>
+          <div class="pills" id="piecePills">
+            <button class="pill" data-pieces="24" data-hot>24 · kids</button>
+            <button class="pill on" data-pieces="96" data-hot>96 · cosy</button>
+            <button class="pill" data-pieces="510" data-hot>510 · weekend</button>
+            <button class="pill" data-pieces="988" data-hot>1000 · epic</button>
+          </div>
+        </div>
+        <div class="ctl rv" style="--d:.19s">
+          <h4><span class="n">3</span> Name this chapter</h4>
+          <input class="cap-input" id="captionInput" maxlength="34" placeholder="summer we won't shut up about" value="the summer we won't shut up about">
+        </div>
+        <div class="maker-buy rv" style="--d:.26s">
+          <div class="price"><b id="price">€34</b><span>free tracked shipping</span></div>
+          <button class="btn primary" id="buyBtn" data-hot>Piece me together <span class="arr">→</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-        // Start button event listener
-        startButton.addEventListener('click', () => {
-            console.log('Starting game');
-            initPuzzle();
-            drawPuzzle();
-            startButton.style.display = 'none';
-            shuffleButton.style.display = 'inline-block';
-            previewButton.style.display = 'inline-block';
-            organizeButton.style.display = 'inline-block';
-            startTimer();
-        });
+<section class="gallery" id="gallery">
+  <div class="wrap">
+    <div class="chapter rv" data-chapter>
+      <span class="ch-tag">chapter three · borrowed stories</span>
+      <h2>No photo? <span class="hl">Adopt a story.</span></h2>
+      <p class="lead">Six little worlds, painted by our studio and cut like the real thing. Hover to see the blades' path — click one and it jumps straight into the workshop.</p>
+    </div>
+    <div class="gal-grid" id="galGrid"></div>
+  </div>
+</section>
 
-        // Load the image and initialize the puzzle
-        img.onload = function() {
-            console.log('Image loaded');
-            pieceWidth = canvas.width / cols; // Calculate the width of each puzzle piece
-            pieceHeight = canvas.height / rows; // Calculate the height of each puzzle piece
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
-        };
+<section class="voices" aria-label="What people say">
+  <div class="wrap chapter rv center" data-chapter>
+    <span class="ch-tag">chapter four · the table</span>
+    <h2>Around <span class="hl">the puzzle</span>, things happen.</h2>
+  </div>
+  <div class="lane"><div class="voice-row" id="voiceRow">
+    <div class="voice" style="--r:-1.4deg"><p>"We puzzled our wedding photo on our first anniversary. Finished at 2am, cried at the last piece."</p><div class="who"><span class="ava" style="background:var(--blush)">💍</span><div><b>Marta & Jo</b><span>988 pieces</span><div class="stars">★★★★★</div></div></div></div>
+    <div class="voice" style="--r:1.2deg"><p>"My dad hasn't put his phone down in years. This put it down for him. Three Sundays straight."</p><div class="who"><span class="ava" style="background:#FFF3B0">👨‍👧</span><div><b>Ines</b><span>510 pieces</span><div class="stars">★★★★★</div></div></div></div>
+    <div class="voice" style="--r:-.8deg"><p>"Sent one of our dog to my ex. We're back together. Not saying it was the puzzle, but it was the puzzle."</p><div class="who"><span class="ava" style="background:#C9F5E9">🐕</span><div><b>Theo</b><span>96 pieces</span><div class="stars">★★★★★</div></div></div></div>
+    <div class="voice" style="--r:1.6deg"><p>"The kids' first snowman, in 24 chunky pieces. It gets rebuilt roughly nine times a day."</p><div class="who"><span class="ava" style="background:#D9C7FF">⛄</span><div><b>Priya</b><span>24 pieces</span><div class="stars">★★★★★</div></div></div></div>
+    <div class="voice" style="--r:-1deg"><p>"Grandma's 90th. Ninety years, a thousand pieces, four generations at one table. Unreal evening."</p><div class="who"><span class="ava" style="background:#BFE8FF">🎂</span><div><b>The Okafors</b><span>988 pieces</span><div class="stars">★★★★★</div></div></div></div>
+  </div></div>
+</section>
 
-        // Modified draw function to remove highlighting
-        function drawPuzzle() {
-            console.log('Drawing puzzle');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            pieces.forEach(piece => {
-                ctx.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.x, piece.y, pieceWidth, pieceHeight);
-            });
-            console.log('Puzzle drawn');
-        }
+<section class="finale">
+  <canvas id="finaleCanvas" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <span class="ch-tag">the last chapter is yours</span>
+    <h2 class="rv">Some stories deserve<br>to be <em>held.</em></h2>
+    <p class="rv" style="--d:.1s">Screens scroll past. Puzzles stay on the table, in your hands, in the middle of your best evenings. Start yours in under a minute.</p>
+    <div class="hero-ctas rv" style="--d:.2s">
+      <a class="btn primary" href="#maker" data-hot>📸 Upload your photo <span class="arr">→</span></a>
+      <a class="btn ghost" href="#gallery" data-hot>Or adopt a story</a>
+    </div>
+  </div>
+</section>
 
-        // Shuffle button event listener to shuffle the puzzle pieces
-        shuffleButton.addEventListener('click', () => {
-            console.log('Shuffling puzzle pieces');
-            pieces = pieces.sort(() => Math.random() - 0.5); // Shuffle the pieces array randomly
-            drawPuzzle(); // Redraw the shuffled puzzle
-        });
+<footer>
+  <div class="foot-word" aria-hidden="true">PieceTale</div>
+  <div class="foot-row wrap">
+    <span>© 2026 PieceTale · made slowly, on purpose 🧩</span>
+    <nav aria-label="Footer"><a href="#story" data-hot>Story</a><a href="#maker" data-hot>Workshop</a><a href="#gallery" data-hot>Gallery</a><a href="#top" data-hot>Top</a></nav>
+  </div>
+</footer>
 
-        // Preview button functionality to show the complete image
-        previewButton.addEventListener('click', () => {
-            console.log('Previewing full image');
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the full image on the canvas
-        });
+<script>
+"use strict";
+/* ================= utils ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function seeded(i){let x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+const DPR=Math.min(2,window.devicePixelRatio||1);
 
-        // Generate a shareable link for the current puzzle
-        function generateShareLink() {
-            console.log('Generating share link');
-            const baseUrl = window.location.href;
-            // Create a link element to share the puzzle with a friend
-            shareLinkDiv.innerHTML = `<a href="${baseUrl}" target="_blank">Share this puzzle with a friend!</a>`;
-            console.log('Share link generated:', baseUrl);
-        }
+/* ================= jigsaw geometry ================= */
+function tabArc(ctx,sx,sy,ex,ey,cx,cy,r,fx,fy){
+  const TAU=Math.PI*2,norm=a=>((a%TAU)+TAU)%TAU;
+  const a0=Math.atan2(sy-cy,sx-cx),a1=Math.atan2(ey-cy,ex-cx),af=Math.atan2(fy-cy,fx-cx);
+  const fwd=norm(af-a0)<=norm(a1-a0)+1e-9;   // is the knob apex on the clockwise sweep?
+  ctx.arc(cx,cy,r,a0,a1,!fwd);
+}
+function edgeTo(ctx,x1,y1,x2,y2,s){
+  if(!s){ctx.lineTo(x2,y2);return}
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+  const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+  const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+  const mx=x1+dx/2,my=y1+dy/2;
+  const ax=mx-ux*g,ay=my-uy*g,bx=mx+ux*g,by=my+uy*g;
+  const cx=mx+nx*hh,cy=my+ny*hh,fx=cx+nx*t,fy=cy+ny*t;
+  ctx.lineTo(ax,ay);
+  tabArc(ctx,ax,ay,bx,by,cx,cy,t,fx,fy);
+  ctx.lineTo(x2,y2);
+}
+function piecePath(ctx,x,y,w,h,e){
+  ctx.beginPath();ctx.moveTo(x,y);
+  edgeTo(ctx,x,y,x+w,y,e.t);
+  edgeTo(ctx,x+w,y,x+w,y+h,e.r);
+  edgeTo(ctx,x+w,y+h,x,y+h,e.b);
+  edgeTo(ctx,x,y+h,x,y,e.l);
+  ctx.closePath();
+}
+function makeEdges(cols,rows,seedBase=7){
+  const H=[],V=[];
+  for(let r=0;r<rows-1;r++){H[r]=[];for(let c=0;c<cols;c++)H[r][c]=seeded(seedBase+r*97+c*13)>.5?1:-1}
+  for(let r=0;r<rows;r++){V[r]=[];for(let c=0;c<cols-1;c++)V[r][c]=seeded(seedBase+r*41+c*71+9)>.5?1:-1}
+  return {H,V,cols,rows};
+}
+function edgesFor(E,r,c){
+  return {
+    t:r===0?0:E.H[r-1][c],
+    r:c===E.cols-1?0:E.V[r][c],
+    b:r===E.rows-1?0:-E.H[r][c],
+    l:c===0?0:-E.V[r][c-1]
+  };
+}
 
-        generateShareLink(); // Call the function to generate the share link
+/* ================= the "memory" — generative golden-hour photo ================= */
+function paintMoment(ctx,w,h){
+  const sky=ctx.createLinearGradient(0,0,0,h*.72);
+  sky.addColorStop(0,"#FF5E7E");sky.addColorStop(.42,"#FF9E5E");sky.addColorStop(.8,"#FFD98A");sky.addColorStop(1,"#FFEDB8");
+  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h*.72);
+  // sun + halo
+  const sx=w*.62,sy=h*.5,sr=w*.13;
+  const halo=ctx.createRadialGradient(sx,sy,sr*.3,sx,sy,sr*3.1);
+  halo.addColorStop(0,"rgba(255,246,200,.95)");halo.addColorStop(1,"rgba(255,246,200,0)");
+  ctx.fillStyle=halo;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="#FFF3C4";ctx.beginPath();ctx.arc(sx,sy,sr,0,7);ctx.fill();
+  // clouds
+  ctx.fillStyle="rgba(255,255,255,.30)";
+  [[.16,.2,.13],[.42,.13,.09],[.78,.26,.11],[.28,.34,.07]].forEach(([cx,cy,cr])=>{
+    for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(w*cx+i*w*cr*.38,h*cy+(i%2)*h*.008,w*cr*(.42-.06*i),0,7);ctx.fill()}
+  });
+  // far hills
+  ctx.fillStyle="#B86BA5";
+  ctx.beginPath();ctx.moveTo(0,h*.6);
+  for(let x=0;x<=w;x+=w/40)ctx.lineTo(x,h*.6-Math.sin(x/w*Math.PI*2.2+1)*h*.07-seeded(x)*h*.012);
+  ctx.lineTo(w,h*.72);ctx.lineTo(0,h*.72);ctx.fill();
+  ctx.fillStyle="#7D4E93";
+  ctx.beginPath();ctx.moveTo(0,h*.66);
+  for(let x=0;x<=w;x+=w/40)ctx.lineTo(x,h*.66-Math.sin(x/w*Math.PI*1.6+3)*h*.05);
+  ctx.lineTo(w,h*.72);ctx.lineTo(0,h*.72);ctx.fill();
+  // sea
+  const sea=ctx.createLinearGradient(0,h*.72,0,h);
+  sea.addColorStop(0,"#FF9E7A");sea.addColorStop(.5,"#5E8BD9");sea.addColorStop(1,"#3D5FA8");
+  ctx.fillStyle=sea;ctx.fillRect(0,h*.72,w,h*.28);
+  // sun glitter path
+  for(let i=0;i<26;i++){
+    const yy=h*.73+i*(h*.26/26);
+    const ww=lerp(w*.2,w*.03,i/26)*(0.5+seeded(i)*0.8);
+    ctx.fillStyle=`rgba(255,236,170,${.55-i*.014})`;
+    ctx.fillRect(sx-ww/2+ (seeded(i*3)-.5)*w*.04,yy,ww,h*.008);
+  }
+  // birds
+  ctx.strokeStyle="#3A2B55";ctx.lineWidth=Math.max(2,w*.004);ctx.lineCap="round";
+  [[.24,.3,1],[.3,.26,.7],[.36,.32,.55]].forEach(([bx,by,s])=>{
+    ctx.beginPath();
+    ctx.moveTo(w*(bx-.022*s),h*by);
+    ctx.quadraticCurveTo(w*(bx-.01*s),h*(by-.018*s),w*bx,h*by);
+    ctx.quadraticCurveTo(w*(bx+.012*s),h*(by-.018*s),w*(bx+.024*s),h*by);
+    ctx.stroke();
+  });
+  // two tiny figures on the shore
+  ctx.fillStyle="#2C2144";
+  const fy=h*.965;
+  [[.3,.052],[.345,.062]].forEach(([fx,fh],i)=>{
+    ctx.beginPath();ctx.arc(w*fx,fy-h*fh,w*.012,0,7);ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(w*fx-w*.011,fy-h*fh+w*.012,w*.022,h*fh-w*.008,w*.01):ctx.rect(w*fx-w*.011,fy-h*fh+w*.012,w*.022,h*fh-w*.008);
+    ctx.fill();
+  });
+  // held hands
+  ctx.strokeStyle="#2C2144";ctx.lineWidth=w*.006;
+  ctx.beginPath();ctx.moveTo(w*.311,fy-h*.028);ctx.quadraticCurveTo(w*.3225,fy-h*.019,w*.334,fy-h*.03);ctx.stroke();
+  // vignette
+  const vg=ctx.createRadialGradient(w/2,h/2,w*.35,w/2,h/2,w*.78);
+  vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(60,20,60,.28)");
+  ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+}
+const momentCanvas=document.createElement("canvas");
+momentCanvas.width=momentCanvas.height=900;
+paintMoment(momentCanvas.getContext("2d"),900,900);
+const momentURL=momentCanvas.toDataURL("image/jpeg",.9);
 
-        // Organize button functionality to arrange pieces around the center
-        organizeButton.addEventListener('click', () => {
-            console.log('Organizing puzzle pieces');
-            const padding = 50; // Padding around the center
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const leftBoundary = padding;
-            const rightBoundary = canvas.width - pieceWidth - padding;
-            const topBoundary = padding;
-            const bottomBoundary = canvas.height - pieceHeight - padding;
+/* ================= sticky shatter scene ================= */
+const GRID=4, tilesEl=$("#tiles"), tiles=[];
+(function buildTiles(){
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID;c++){
+    const t=document.createElement("div");
+    t.className="tile";
+    t.style.width=100/GRID+"%";t.style.height=100/GRID+"%";
+    t.style.left=c*100/GRID+"%";t.style.top=r*100/GRID+"%";
+    t.style.backgroundImage=`url(${momentURL})`;
+    t.style.backgroundPosition=`${c*100/(GRID-1)}% ${r*100/(GRID-1)}%`;
+    const i=r*GRID+c, a=seeded(i*7.3)*Math.PI*2;
+    const dist=(.55+seeded(i*3.1)*.85);
+    tiles.push({el:t,dx:Math.cos(a)*dist,dy:Math.sin(a)*dist,rot:(seeded(i*9.7)-.5)*260,delay:seeded(i*5.9)*.25});
+    tilesEl.appendChild(t);
+  }
+})();
+(function buildOverlay(){
+  const E=makeEdges(GRID,GRID,21),svg=$("#jigsawOverlay");
+  let d="";
+  const seg=(x1,y1,x2,y2,s)=>{
+    if(!s){d+=`M${x1} ${y1}L${x2} ${y2}`;return}
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+    const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+    const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+    const mx=x1+dx/2,my=y1+dy/2;
+    const ax=mx-ux*g,ay=my-uy*g,bx=mx+ux*g,by=my+uy*g;
+    const fx=mx+nx*(hh+t),fy=my+ny*(hh+t);
+    const cross=(bx-ax)*(fy-ay)-(by-ay)*(fx-ax);   // apex side of chord decides sweep
+    const sweep=cross>0?0:1;
+    d+=`M${x1} ${y1}L${ax} ${ay}A${t} ${t} 0 1 ${sweep} ${bx} ${by}L${x2} ${y2}`;
+  };
+  const st=100/GRID;
+  for(let r=0;r<GRID-1;r++)for(let c=0;c<GRID;c++)seg(c*st,(r+1)*st,(c+1)*st,(r+1)*st,E.H[r][c]);
+  for(let r=0;r<GRID;r++)for(let c=0;c<GRID-1;c++)seg((c+1)*st,r*st,(c+1)*st,(r+1)*st,E.V[r][c]);
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="#FFFDF7" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".9"/>
+  <path d="${d}" fill="none" stroke="rgba(35,26,79,.55)" stroke-width="2.6" vector-effect="non-scaling-stroke" style="filter:blur(2px)"/>`;
+})();
+const sceneEl=$("#story"),polaroid=$("#polaroid"),overlay=$("#jigsawOverlay"),sceneCnt=$("#sceneCnt"),pieceCountEl=$("#pieceCount");
+const caps=[$("#cap1"),$("#cap2"),$("#cap3"),$("#cap4")];
+const stageEl=$(".photo-stage");
+let lastCount=-1;
+function sceneTick(){
+  const r=sceneEl.getBoundingClientRect();
+  const total=r.height-innerHeight;
+  const p=clamp(-r.top/total,0,1);
+  // phases: 0-.18 intro | .18-.48 shatter | .48-.62 hold | .62-.9 reassemble | .9-1 jigsaw reveal
+  const sh=easeIO(clamp((p-.18)/.3,0,1));
+  const re=easeIO(clamp((p-.62)/.28,0,1));
+  const f=sh*(1-re);                      // explode factor
+  const R=stageEl.getBoundingClientRect().width;
+  tiles.forEach(t=>{
+    const ff=clamp(f*(1+t.delay)-t.delay*0,0,1.4);
+    t.el.style.transform=`translate(${t.dx*R*1.35*ff}px,${t.dy*R*1.15*ff}px) rotate(${t.rot*ff}deg) scale(${1-ff*.12})`;
+    t.el.style.opacity=1-ff*.12;
+  });
+  polaroid.style.opacity=String(clamp(1-sh*2.4,0,1));
+  polaroid.style.transform=`scale(${1+sh*.35}) rotate(${-sh*7}deg)`;
+  const ov=clamp((p-.86)/.1,0,1);
+  overlay.style.opacity=ov;
+  // captions
+  caps[0].classList.toggle("on",p<.22);
+  caps[1].classList.toggle("on",p>=.22&&p<.58);
+  caps[2].classList.toggle("on",p>=.58&&p<.88);
+  caps[3].classList.toggle("on",p>=.88);
+  // rolling count while shattered
+  const showCnt=p>=.3&&p<.6;
+  sceneCnt.classList.toggle("on",showCnt);
+  if(showCnt){
+    const n=Math.round(easeOut(clamp((p-.3)/.22,0,1))*1000);
+    if(n!==lastCount){pieceCountEl.textContent=n.toLocaleString("en-US");lastCount=n}
+  }
+}
+</script>
 
-            let index = 0;
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    // Skip pieces that would overlap the center area
-                    if (
-                        (col * pieceWidth + pieceWidth / 2 > centerX - pieceWidth && col * pieceWidth + pieceWidth / 2 < centerX + pieceWidth) &&
-                        (row * pieceHeight + pieceHeight / 2 > centerY - pieceHeight && row * pieceHeight + pieceHeight / 2 < centerY + pieceHeight)
-                    ) {
-                        continue;
-                    }
-                    pieces[index].x = Math.max(leftBoundary, Math.min(rightBoundary, col * pieceWidth)); // Position the piece within boundaries
-                    pieces[index].y = Math.max(topBoundary, Math.min(bottomBoundary, row * pieceHeight)); // Position the piece within boundaries
-                    index++;
-                }
-            }
-            drawPuzzle(); // Redraw the organized puzzle
-        });
+<script>
+"use strict";
+/* ================= floating hero pieces ================= */
+const heroCv=$("#heroPieces"),heroCtx=heroCv.getContext("2d");
+const PAL=["#FF4D6D","#FF9F1C","#FFD60A","#2EC4B6","#3A86FF","#8338EC"];
+let flock=[],mx=.5,my=.5;
+function sizeHero(){
+  const r=heroCv.parentElement.getBoundingClientRect();
+  heroCv.width=r.width*DPR;heroCv.height=r.height*DPR;
+  heroCv.style.width=r.width+"px";heroCv.style.height=r.height+"px";
+}
+function buildFlock(){
+  flock=[];
+  const n=Math.min(26,Math.max(12,Math.round(innerWidth/60)));
+  for(let i=0;i<n;i++){
+    flock.push({
+      x:seeded(i*3.7),y:seeded(i*8.1),
+      s:lerp(18,54,seeded(i*5.3)),
+      vx:(seeded(i*1.9)-.5)*.00022,vy:(seeded(i*6.7)-.5)*.00017,
+      rot:seeded(i*4.4)*Math.PI*2,vr:(seeded(i*2.8)-.5)*.006,
+      col:PAL[i%PAL.length],al:lerp(.25,.6,seeded(i*7.7)),
+      depth:lerp(.3,1,seeded(i*9.2)),
+      e:{t:[0,1,-1][i%3],r:[1,-1,0][(i+1)%3],b:[1,0,-1][(i+2)%3],l:[0,-1,1][i%3]}
+    });
+  }
+}
+function drawFlock(){
+  const W=heroCv.width,H=heroCv.height;
+  heroCtx.clearRect(0,0,W,H);
+  for(const p of flock){
+    p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr*.016;
+    if(p.x<-.1)p.x=1.1;if(p.x>1.1)p.x=-.1;
+    if(p.y<-.1)p.y=1.1;if(p.y>1.1)p.y=-.1;
+    const px=(p.x+(mx-.5)*.05*p.depth)*W;
+    const py=(p.y+(my-.5)*.05*p.depth)*H;
+    const s=p.s*DPR*p.depth;
+    heroCtx.save();
+    heroCtx.translate(px,py);heroCtx.rotate(p.rot);
+    heroCtx.globalAlpha=p.al;
+    heroCtx.fillStyle=p.col;
+    heroCtx.strokeStyle="rgba(35,26,79,.5)";
+    heroCtx.lineWidth=Math.max(1.2,s*.045);
+    piecePath(heroCtx,-s/2,-s/2,s,s,p.e);
+    heroCtx.fill();heroCtx.stroke();
+    heroCtx.restore();
+  }
+}
 
-        // Drag and drop functionality
-        let selectedPiece = null; // Variable to store the currently selected piece
-        let offsetX = 0, offsetY = 0; // Offsets to track mouse position relative to the piece
+/* ================= cursor ================= */
+const dot=$(".cursor-dot"),ring=$(".cursor-ring");
+let cx=innerWidth/2,cy=innerHeight/2,rx=cx,ry=cy,cursorOn=false;
+addEventListener("pointermove",e=>{
+  cursorOn=true;cx=e.clientX;cy=e.clientY;
+  mx=e.clientX/innerWidth;my=e.clientY/innerHeight;
+},{passive:true});
+document.addEventListener("mouseover",e=>{
+  document.body.classList.toggle("cursor-hot",!!e.target.closest("[data-hot],a,button,input,label"));
+});
 
-        let isDragging = false;
+/* ================= scroll: progress, nav, scene ================= */
+const bar=$("#progressBar"),nav=$("#nav");
+let lastY=0;
+function onScrollFrame(){
+  const doc=document.documentElement;
+  const p=doc.scrollTop/(doc.scrollHeight-innerHeight);
+  bar.style.width=(p*100).toFixed(2)+"%";
+  const y=doc.scrollTop;
+  nav.classList.toggle("hidden",y>lastY+2&&y>560);
+  lastY=y;
+  sceneTick();
+}
 
-        // New function to find connected pieces
-        function findConnectedPieces(piece) {
-            let connectedGroup = [piece];
-            let newAdditions;
-            do {
-                newAdditions = [];
-                for (let groupPiece of connectedGroup) {
-                    for (let otherPiece of pieces) {
-                        if (!connectedGroup.includes(otherPiece)) {
-                            if (areConnected(groupPiece, otherPiece)) {
-                                newAdditions.push(otherPiece);
-                                // Magnetic behavior: Snap the connected piece to the correct position
-                                otherPiece.x = otherPiece.correctX + (groupPiece.x - groupPiece.correctX);
-                                otherPiece.y = otherPiece.correctY + (groupPiece.y - groupPiece.correctY);
-                            }
-                        }
-                    }
-                }
-                connectedGroup = connectedGroup.concat(newAdditions);
-            } while (newAdditions.length > 0);
-            return connectedGroup;
-        }
+/* ================= reveals + chapter underline + counters ================= */
+const io=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    if(!en.isIntersecting)return;
+    en.target.classList.add("in");
+    en.target.querySelectorAll("[data-count]").forEach(el=>{
+      if(el.dataset.done)return;el.dataset.done=1;
+      const target=+el.dataset.count,t0=performance.now(),dur=1600;
+      (function tick(t){
+        const k=easeOut(clamp((t-t0)/dur,0,1));
+        el.textContent=Math.round(target*k).toLocaleString("en-US");
+        if(k<1)requestAnimationFrame(tick);
+      })(t0);
+    });
+    io.unobserve(en.target);
+  });
+},{threshold:.25});
+$$(".rv,[data-chapter],.stat").forEach(el=>io.observe(el));
 
-        // New function to check if two pieces are connected
-        function areConnected(piece1, piece2) {
-            const threshold = 10; // Adjust this value for stricter or looser connections
-            const correctDx = piece1.correctX - piece2.correctX;
-            const correctDy = piece1.correctY - piece2.correctY;
-            const actualDx = piece1.x - piece2.x;
-            const actualDy = piece1.y - piece2.y;
+/* ================= marquees: duplicate until wide enough ================= */
+$$(".marquee .track").forEach(tr=>{
+  const html=tr.innerHTML;
+  while(tr.scrollWidth<innerWidth*2.2)tr.innerHTML+=html;
+});
+const vr=$("#voiceRow");vr.innerHTML+=vr.innerHTML;
 
-            return Math.abs(actualDx - correctDx) < threshold && Math.abs(actualDy - correctDy) < threshold;
-        }
+/* ================= gallery card tilt ================= */
+function bindTilt(card){
+  card.addEventListener("pointermove",e=>{
+    if(e.pointerType==="touch")return;
+    const r=card.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`rotateY(${px*10}deg) rotateX(${-py*8}deg) translateY(-6px)`;
+  });
+  card.addEventListener("pointerleave",()=>{card.style.transform=""});
+}
 
-        // Modified event listeners to support both mouse and touch events
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('mouseleave', handleEnd);
+/* ================= toast ================= */
+const toast=$("#toast"),toastMsg=$("#toastMsg");let toastT;
+function say(msg){
+  toastMsg.textContent=msg;toast.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>toast.classList.remove("on"),3400);
+}
 
-        canvas.addEventListener('touchstart', handleStart);
-        canvas.addEventListener('touchmove', handleMove);
-        canvas.addEventListener('touchend', handleEnd);
-        canvas.addEventListener('touchcancel', handleEnd);
+/* ================= main loop ================= */
+let running=true;
+function raf(){
+  if(!reduceMotion){
+    drawFlock();
+    if(cursorOn){
+      rx=lerp(rx,cx,.16);ry=lerp(ry,cy,.16);
+      dot.style.transform=`translate(${cx-5}px,${cy-5}px)`;
+      ring.style.transform=`translate(${rx}px,${ry}px)`;
+    }
+    stepConfetti();
+    stepFinale();
+  }
+  onScrollFrame();
+  requestAnimationFrame(raf);
+}
+addEventListener("resize",()=>{sizeHero();buildFlock();sizeConfetti();sizeFinale()});
+</script>
 
-        function getEventCoordinates(e) {
-            let clientX, clientY;
-            if (e.touches && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            return {
-                clientX: (clientX - rect.left) * scaleX,
-                clientY: (clientY - rect.top) * scaleY
-            };
-        }
+<script>
+"use strict";
+/* ================= THE WORKSHOP ================= */
+const mkCv=$("#makerCanvas"),mk=mkCv.getContext("2d");
+const srcCv=document.createElement("canvas");srcCv.width=1200;srcCv.height=800;
+const captionInput=$("#captionInput"),piecesLabel=$("#piecesLabel"),sizeLabel=$("#sizeLabel"),priceEl=$("#price");
+const PIECE_OPTS={
+  24:{cols:6,rows:4,label:"24",size:"24×18 cm",price:"€24"},
+  96:{cols:12,rows:8,label:"96",size:"46×31 cm",price:"€34"},
+  510:{cols:30,rows:17,label:"510",size:"49×34 cm",price:"€49"},
+  988:{cols:38,rows:26,label:"1000",size:"68×48 cm",price:"€59"}
+};
+const mkState={img:momentCanvas,pieces:96,scatter:0};
+const edgeCache={};
+function edgesOf(cols,rows){const k=cols+"x"+rows;return edgeCache[k]||(edgeCache[k]=makeEdges(cols,rows,cols*3+rows))}
+function drawSource(){
+  const s=srcCv.getContext("2d"),img=mkState.img;
+  const iw=img.width,ih=img.height,sc=Math.max(1200/iw,800/ih);
+  s.clearRect(0,0,1200,800);
+  s.drawImage(img,(1200-iw*sc)/2,(800-ih*sc)/2,iw*sc,ih*sc);
+  const cap=captionInput.value.trim();
+  if(cap){
+    s.save();s.translate(46,800-52);s.rotate(-.02);
+    s.font="600 52px Caveat, 'Segoe Script', cursive";
+    const w=s.measureText(cap).width;
+    s.fillStyle="rgba(35,26,79,.78)";
+    s.beginPath();
+    s.roundRect?s.roundRect(-22,-52,w+44,74,37):s.rect(-22,-52,w+44,74);
+    s.fill();
+    s.fillStyle="#FFF6EA";s.fillText(cap,0,4);
+    s.restore();
+  }
+}
+function renderMaker(){
+  drawSource();
+  const opt=PIECE_OPTS[mkState.pieces],{cols,rows}=opt,E=edgesOf(cols,rows);
+  const pw=1200/cols,ph=800/rows,k=mkState.scatter,many=cols*rows>300;
+  mk.clearRect(0,0,1200,800);
+  mk.fillStyle="rgba(35,26,79,.05)";mk.fillRect(0,0,1200,800);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const i=r*cols+c;
+    mk.save();
+    if(k>0){
+      const a=seeded(i*2.13)*Math.PI*2,d=k*(50+seeded(i*3.31)*170),rot=k*(seeded(i*4.7)-.5)*1.3;
+      const pcx=c*pw+pw/2,pcy=r*ph+ph/2;
+      mk.translate(pcx+Math.cos(a)*d,pcy+Math.sin(a)*d*.72);
+      mk.rotate(rot);mk.translate(-pcx,-pcy);
+    }
+    piecePath(mk,c*pw,r*ph,pw,ph,edgesFor(E,r,c));
+    mk.clip();
+    mk.drawImage(srcCv,0,0);
+    mk.lineWidth=many?1.4:2.6;
+    mk.strokeStyle=many?"rgba(255,253,247,.55)":"rgba(255,253,247,.75)";
+    mk.stroke();
+    mk.strokeStyle="rgba(35,26,79,.25)";mk.lineWidth=many?.8:1.4;mk.stroke();
+    mk.restore();
+  }
+}
+function refreshMeta(){
+  const o=PIECE_OPTS[mkState.pieces];
+  piecesLabel.textContent=o.label;sizeLabel.textContent=o.size;priceEl.textContent=o.price;
+}
+/* scatter animation */
+let scatterTarget=0,scatterAnim=null;
+function animateScatter(to,dur=950){
+  scatterTarget=to;
+  const from=mkState.scatter,t0=performance.now();
+  cancelAnimationFrame(scatterAnim);
+  (function step(t){
+    const k=easeIO(clamp((t-t0)/dur,0,1));
+    mkState.scatter=lerp(from,to,k);
+    renderMaker();
+    if(k<1)scatterAnim=requestAnimationFrame(step);
+  })(t0);
+}
+$("#scatterBtn").addEventListener("click",e=>{
+  const to=scatterTarget>0?0:1;
+  animateScatter(to);
+  e.currentTarget.innerHTML=to?"🧲 Snap it back":"💥 Scatter it";
+  if(to)spawnConfetti(e.clientX,e.clientY,26);
+});
+/* piece pills */
+$("#piecePills").addEventListener("click",e=>{
+  const b=e.target.closest(".pill");if(!b)return;
+  $$("#piecePills .pill").forEach(p=>p.classList.remove("on"));
+  b.classList.add("on");
+  mkState.pieces=+b.dataset.pieces;refreshMeta();
+  mkState.scatter=Math.max(mkState.scatter,.4);          // recut pulse
+  scatterTarget=0;$("#scatterBtn").innerHTML="💥 Scatter it";
+  animateScatter(0,700);
+});
+captionInput.addEventListener("input",()=>renderMaker());
+/* upload */
+const drop=$("#drop"),fileInput=$("#fileInput"),dropTitle=$("#dropTitle");
+function useFile(file){
+  if(!file||!file.type.startsWith("image/")){say("That doesn't look like a photo 🤔");return}
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    mkState.img=img;renderMaker();
+    dropTitle.textContent="Got it — "+(file.name.length>26?file.name.slice(0,24)+"…":file.name);
+    say("Beautiful. Now that's a story 🧡");
+    const r=mkCv.getBoundingClientRect();
+    spawnConfetti(r.left+r.width/2,r.top+r.height/2,50);
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+}
+fileInput.addEventListener("change",()=>useFile(fileInput.files[0]));
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>useFile(e.dataTransfer.files[0]));
+$("#buyBtn").addEventListener("click",e=>{
+  spawnConfetti(e.clientX,e.clientY,130);
+  say("Demo checkout — but this puzzle deserves to exist 🧩");
+});
 
-        function handleStart(e) {
-            e.preventDefault();
-            const { clientX, clientY } = getEventCoordinates(e);
-            console.log('Start at:', clientX, clientY);
-            
-            for (let i = pieces.length - 1; i >= 0; i--) {
-                let piece = pieces[i];
-                if (
-                    clientX >= piece.x && clientX <= piece.x + pieceWidth &&
-                    clientY >= piece.y && clientY <= piece.y + pieceHeight
-                ) {
-                    selectedPiece = piece;
-                    // Calculate offset from the touch point to the piece's top-left corner
-                    offsetX = clientX - piece.x;
-                    offsetY = clientY - piece.y;
-                    selectedGroup = findConnectedPieces(piece);
-                    console.log('Selected group:', selectedGroup);
-                    // Move the selected group to the end of the pieces array to render on top
-                    pieces = pieces.filter(p => !selectedGroup.includes(p)).concat(selectedGroup);
-                    isDragging = true;
-                    drawPuzzle();
-                    break;
-                }
-            }
-        }
+/* ================= GALLERY ================= */
+function jigsawPathD(cols,rows,seed){
+  const E=makeEdges(cols,rows,seed);let d="";
+  const seg=(x1,y1,x2,y2,s)=>{
+    if(!s){d+=`M${x1} ${y1}L${x2} ${y2}`;return}
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+    const ux=dx/len,uy=dy/len,nx=-uy*s,ny=ux*s;
+    const t=len*.155,g=t*.55,hh=Math.sqrt(t*t-g*g);
+    const mxx=x1+dx/2,myy=y1+dy/2;
+    const ax=mxx-ux*g,ay=myy-uy*g,bx=mxx+ux*g,by=myy+uy*g;
+    const fx=mxx+nx*(hh+t),fy=myy+ny*(hh+t);
+    const sweep=((bx-ax)*(fy-ay)-(by-ay)*(fx-ax))>0?0:1;
+    d+=`M${x1} ${y1}L${ax} ${ay}A${t} ${t} 0 1 ${sweep} ${bx} ${by}L${x2} ${y2}`;
+  };
+  const sw=100/cols,sh=100/rows;
+  for(let r=0;r<rows-1;r++)for(let c=0;c<cols;c++)seg(c*sw,(r+1)*sh,(c+1)*sw,(r+1)*sh,E.H[r][c]);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols-1;c++)seg((c+1)*sw,r*sh,(c+1)*sw,(r+1)*sh,E.V[r][c]);
+  return d;
+}
+const GALLERY=[
+  {name:"Golden Hour, Us",sub:"the studio classic",tag:"bestseller",paint:null},
+  {name:"Neon Insomnia",sub:"a city that hums",tag:"night owl",paint:paintCity},
+  {name:"Wild Meadow",sub:"June in a box",tag:"calming",paint:paintMeadow},
+  {name:"The Big Sip",sub:"one brave wave",tag:"deep blue",paint:paintWave},
+  {name:"Aurora Motel",sub:"sky doing magic",tag:"glow",paint:paintAurora},
+  {name:"Citrus Riot",sub:"loud & juicy",tag:"kids love it",paint:paintCitrus}
+];
+function paintCity(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#191036");bg.addColorStop(1,"#3E1D66");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFE8A3";for(let i=0;i<70;i++){g.globalAlpha=.3+seeded(i)*.7;g.fillRect(seeded(i*3)*w,seeded(i*7)*h*.45,2,2)}
+  g.globalAlpha=1;
+  const cols2=["#FF4D6D","#3A86FF","#8338EC","#2EC4B6","#FF9F1C"];
+  for(let i=0;i<14;i++){
+    const bw=w*(.05+seeded(i*2)*.06),bx=i*w*.072,bh=h*(.25+seeded(i*5)*.45),by=h-bh;
+    g.fillStyle="#241743";g.fillRect(bx,by,bw,bh);
+    g.fillStyle=cols2[i%5];g.globalAlpha=.9;g.fillRect(bx,by,bw,4);g.globalAlpha=1;
+    for(let y=by+10;y<h-8;y+=11)for(let x=bx+4;x<bx+bw-5;x+=9)
+      if(seeded(x*y)>.5){g.fillStyle=seeded(x+y)>.85?"#FF9F1C":"#FFE8A3";g.globalAlpha=.75;g.fillRect(x,y,4,6)}
+    g.globalAlpha=1;
+  }
+  const m=g.createLinearGradient(0,h*.8,0,h);m.addColorStop(0,"rgba(255,77,109,0)");m.addColorStop(1,"rgba(255,77,109,.45)");
+  g.fillStyle=m;g.fillRect(0,h*.8,w,h*.2);
+}
+function paintMeadow(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#BDE9FF");bg.addColorStop(.5,"#E8F7C8");bg.addColorStop(1,"#7CC96B");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF3B0";g.beginPath();g.arc(w*.8,h*.2,w*.09,0,7);g.fill();
+  for(let i=0;i<80;i++){
+    const x=seeded(i*1.7)*w,y=h*.45+seeded(i*2.9)*h*.55,s=2+seeded(i*4.1)*5;
+    g.strokeStyle="#4E9B47";g.lineWidth=1.5;g.beginPath();g.moveTo(x,y);g.lineTo(x,y+9+s);g.stroke();
+    g.fillStyle=["#FF4D6D","#FFD60A","#FFFDF7","#FF9F1C","#8338EC"][i%5];
+    for(let p2=0;p2<5;p2++){const a=p2/5*Math.PI*2;g.beginPath();g.arc(x+Math.cos(a)*s,y+Math.sin(a)*s,s*.62,0,7);g.fill()}
+    g.fillStyle="#3A2B55";g.beginPath();g.arc(x,y,s*.45,0,7);g.fill();
+  }
+}
+function paintWave(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#FFEDB8");bg.addColorStop(.45,"#8FD6FF");bg.addColorStop(1,"#1D5FBF");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF3C4";g.beginPath();g.arc(w*.22,h*.22,w*.08,0,7);g.fill();
+  for(let l=0;l<5;l++){
+    g.fillStyle=["#2E7FD9","#2568B8","#1D5FBF","#174e9e","#123f83"][l];
+    g.beginPath();g.moveTo(0,h);
+    for(let x=0;x<=w;x+=6){
+      const y=h*(.45+l*.11)+Math.sin(x/w*Math.PI*(2.2+l*.5)+l*2)*h*.06;
+      g.lineTo(x,y);
+    }
+    g.lineTo(w,h);g.fill();
+  }
+  g.strokeStyle="#EFFAFF";g.lineWidth=7;g.lineCap="round";
+  g.beginPath();g.moveTo(w*.16,h*.52);
+  g.bezierCurveTo(w*.4,h*.18,w*.78,h*.16,w*.8,h*.44);
+  g.bezierCurveTo(w*.81,h*.6,w*.62,h*.6,w*.6,h*.47);g.stroke();
+  g.fillStyle="#FFFDF7";
+  for(let i=0;i<28;i++){g.globalAlpha=.5+seeded(i)*.5;g.beginPath();g.arc(w*(.14+seeded(i*3)*.7),h*(.4+seeded(i*5)*.25),2+seeded(i*7)*5,0,7);g.fill()}
+  g.globalAlpha=1;
+}
+function paintAurora(g,w,h){
+  const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,"#0B1030");bg.addColorStop(1,"#232B5C");
+  g.fillStyle=bg;g.fillRect(0,0,w,h);
+  g.fillStyle="#FFF";for(let i=0;i<90;i++){g.globalAlpha=.25+seeded(i*9)*.75;g.fillRect(seeded(i*3)*w,seeded(i*7)*h*.8,1.6,1.6)}
+  g.globalAlpha=1;
+  const ribbons=[["#2EC4B6",.32],["#8338EC",.42],["#3A86FF",.52]];
+  ribbons.forEach(([col,base],ri)=>{
+    g.fillStyle=col;g.globalAlpha=.34;
+    g.beginPath();g.moveTo(0,h*base);
+    for(let x=0;x<=w;x+=8)g.lineTo(x,h*base+Math.sin(x/w*Math.PI*3+ri*2)*h*.09-x/w*h*.14);
+    for(let x=w;x>=0;x-=8)g.lineTo(x,h*base+Math.sin(x/w*Math.PI*3+ri*2)*h*.09-x/w*h*.14+h*.1);
+    g.fill();
+  });
+  g.globalAlpha=1;
+  g.fillStyle="#131A40";g.fillRect(0,h*.82,w,h*.18);
+  for(let i=0;i<9;i++){const x=i*w/9;g.fillStyle="#0B1030";g.beginPath();g.moveTo(x,h*.82);g.lineTo(x+w*.055,h*.68);g.lineTo(x+w*.11,h*.82);g.fill()}
+  g.fillStyle="#FFD60A";g.fillRect(w*.46,h*.75,10,7);
+}
+function paintCitrus(g,w,h){
+  g.fillStyle="#FFB4C0";g.fillRect(0,0,w,h);
+  const fr=[["#FF9F1C","#FFD98A"],["#FFD60A","#FFF3B0"],["#FF4D6D","#FFB4C0"],["#2EC4B6","#C9F5E9"]];
+  for(let i=0;i<11;i++){
+    const [main,flesh]=fr[i%4],x=seeded(i*3.3)*w,y=seeded(i*5.7)*h,r2=w*(.07+seeded(i*8)*.08);
+    g.save();g.translate(x,y);g.rotate(seeded(i)*7);
+    g.fillStyle=main;g.beginPath();g.arc(0,0,r2,0,7);g.fill();
+    g.fillStyle=flesh;g.beginPath();g.arc(0,0,r2*.82,0,7);g.fill();
+    g.fillStyle=main;g.globalAlpha=.8;
+    for(let s2=0;s2<8;s2++){
+      const a=s2/8*Math.PI*2;
+      g.beginPath();g.moveTo(0,0);
+      g.arc(0,0,r2*.74,a+.06,a+Math.PI/4-.06);g.fill();
+    }
+    g.globalAlpha=1;g.restore();
+  }
+}
+function buildGallery(){
+  const grid=$("#galGrid");
+  GALLERY.forEach((item,i)=>{
+    const card=document.createElement("article");
+    card.className="gal-card rv";card.style.setProperty("--d",(i*.07)+"s");
+    card.style.setProperty("--rr",((i%2?1:-1)*1.4)+"deg");
+    card.dataset.hot="";card.tabIndex=0;card.setAttribute("role","button");
+    card.setAttribute("aria-label",`Puzzle "${item.name}" — send it to the workshop`);
+    card.innerHTML=`<span class="gal-tag">${item.tag}</span>
+      <div class="gal-art"><canvas width="480" height="320"></canvas>
+      <svg class="grid-lines" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${jigsawPathD(6,4,i*17+3)}" fill="none" stroke="#FFFDF7" stroke-width="1.1" vector-effect="non-scaling-stroke"/></svg></div>
+      <div class="gal-meta"><div><h3>${item.name}</h3><small>${item.sub}</small></div><span class="gal-go">➜</span></div>`;
+    const cv=card.querySelector("canvas"),g=cv.getContext("2d");
+    if(i===0){g.drawImage(momentCanvas,0,0,900,900,-40,-60,560,560)}else item.paint(g,480,320);
+    card.addEventListener("click",()=>{
+      const src=document.createElement("canvas");src.width=480;src.height=320;
+      src.getContext("2d").drawImage(cv,0,0);
+      mkState.img=src;renderMaker();
+      dropTitle.textContent=`Working on “${item.name}”`;
+      say(`“${item.name}” just moved into your workshop 🧩`);
+      $("#maker").scrollIntoView({behavior:reduceMotion?"auto":"smooth"});
+      const r=card.getBoundingClientRect();
+      spawnConfetti(r.left+r.width/2,r.top+40,30);
+    });
+    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click()}});
+    bindTilt(card);io.observe(card);
+    grid.appendChild(card);
+  });
+}
 
-        function handleMove(e) {
-            e.preventDefault();
-            if (!isDragging) return;
-            
-            const { clientX, clientY } = getEventCoordinates(e);
-            
-            if (selectedPiece) {
-                // Calculate new position based on the original offset
-                const newX = clientX - offsetX;
-                const newY = clientY - offsetY;
-                
-                const dx = newX - selectedPiece.x;
-                const dy = newY - selectedPiece.y;
-                
-                for (let groupPiece of selectedGroup) {
-                    groupPiece.x += dx;
-                    groupPiece.y += dy;
-                }
-                
-                drawPuzzle();
-                
-                let newGroup = findConnectedPieces(selectedPiece);
-                if (newGroup.length > selectedGroup.length) {
-                    selectedGroup = newGroup;
-                    drawPuzzle();
-                }
-            }
-        }
+/* ================= CONFETTI ================= */
+const confCv=$("#confetti"),confCtx=confCv.getContext("2d");
+let confetti=[];
+function sizeConfetti(){confCv.width=innerWidth*DPR;confCv.height=innerHeight*DPR;
+  confCv.style.width=innerWidth+"px";confCv.style.height=innerHeight+"px"}
+function spawnConfetti(x,y,n){
+  if(reduceMotion)return;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,v=4+Math.random()*11;
+    confetti.push({x:x*DPR,y:y*DPR,vx:Math.cos(a)*v*DPR,vy:(Math.sin(a)*v-7)*DPR,
+      rot:Math.random()*7,vr:(Math.random()-.5)*.35,s:(7+Math.random()*11)*DPR,
+      col:PAL[i%PAL.length],life:1,e:{t:1,r:-1,b:1,l:-1}});
+  }
+}
+function stepConfetti(){
+  if(!confetti.length){confCtx.clearRect(0,0,confCv.width,confCv.height);return}
+  confCtx.clearRect(0,0,confCv.width,confCv.height);
+  confetti=confetti.filter(p=>p.life>0);
+  for(const p of confetti){
+    p.x+=p.vx;p.y+=p.vy;p.vy+=.5*DPR;p.vx*=.985;p.rot+=p.vr;p.life-=.012;
+    confCtx.save();confCtx.translate(p.x,p.y);confCtx.rotate(p.rot);
+    confCtx.globalAlpha=clamp(p.life,0,1);confCtx.fillStyle=p.col;
+    piecePath(confCtx,-p.s/2,-p.s/2,p.s,p.s,p.e);confCtx.fill();
+    confCtx.restore();
+  }
+}
 
-        function handleEnd(e) {
-            e.preventDefault();
-            isDragging = false;
-            
-            if (selectedPiece) {
-                console.log('End, group released:', selectedGroup);
-                snapGroup(selectedGroup);
-                drawPuzzle();
-                if (checkPuzzleSolved()) {
-                    alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
-                    stopTimer();
-                }
-            }
-            selectedPiece = null;
-            selectedGroup = [];
-        }
+/* ================= FINALE drift ================= */
+const finCv=$("#finaleCanvas"),finCtx=finCv.getContext("2d");
+let finPieces=[];
+function sizeFinale(){
+  const r=finCv.parentElement.getBoundingClientRect();
+  finCv.width=r.width*DPR;finCv.height=r.height*DPR;
+  finCv.style.width=r.width+"px";finCv.style.height=r.height+"px";
+  finPieces=[];
+  for(let i=0;i<18;i++)finPieces.push({x:seeded(i*3.3),y:seeded(i*6.1),s:lerp(14,40,seeded(i*2.2)),
+    vy:lerp(.0004,.0013,seeded(i*4.4)),rot:seeded(i*8)*7,vr:(seeded(i*5)-.5)*.01,
+    col:PAL[i%PAL.length],al:lerp(.12,.3,seeded(i*9)),e:{t:[1,-1,0][i%3],r:[0,1,-1][i%3],b:[-1,1,0][i%3],l:[0,-1,1][i%3]}});
+}
+function stepFinale(){
+  const r=finCv.parentElement.getBoundingClientRect();
+  if(r.bottom<0||r.top>innerHeight)return;
+  finCtx.clearRect(0,0,finCv.width,finCv.height);
+  for(const p of finPieces){
+    p.y-=p.vy;p.rot+=p.vr;
+    if(p.y<-.08)p.y=1.08;
+    finCtx.save();
+    finCtx.translate(p.x*finCv.width,p.y*finCv.height);finCtx.rotate(p.rot);
+    finCtx.globalAlpha=p.al;finCtx.fillStyle=p.col;
+    const s=p.s*DPR;
+    piecePath(finCtx,-s/2,-s/2,s,s,p.e);finCtx.fill();
+    finCtx.restore();
+  }
+}
 
-        // Modified snap function to handle groups
-        function snapGroup(group) {
-            const snapThreshold = 20; // pixels
-            let snapped = false;
-            for (let piece of group) {
-                if (Math.abs(piece.x - piece.correctX) < snapThreshold && 
-                    Math.abs(piece.y - piece.correctY) < snapThreshold) {
-                    const dx = piece.correctX - piece.x;
-                    const dy = piece.correctY - piece.y;
-                    for (let groupPiece of group) {
-                        groupPiece.x += dx;
-                        groupPiece.y += dy;
-                    }
-                    snapped = true;
-                    break;
-                }
-            }
-            if (snapped) {
-                // After snapping, check for additional connections
-                let allConnected = findConnectedPieces(group[0]);
-                // Snap all connected pieces to their correct positions
-                for (let piece of allConnected) {
-                    piece.x = piece.correctX;
-                    piece.y = piece.correctY;
-                }
-            }
-        }
-
-        // Check if the puzzle is solved
-        function checkPuzzleSolved() {
-            const solved = pieces.every(piece => piece.x === piece.correctX && piece.y === piece.correctY);
-            if (solved) {
-                stopTimer();
-                alert(`Congratulations! You solved the puzzle in ${timerElement.textContent}!`);
-            }
-            return solved;
-        }
-
-        // Add timer functionality
-        let startTime;
-        let timerInterval;
-        const timerElement = document.getElementById('timer');
-
-        function startTimer() {
-            startTime = Date.now();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function updateTimer() {
-            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
-            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
-            timerElement.textContent = `${minutes}:${seconds}`;
-        }
-
-        function stopTimer() {
-            clearInterval(timerInterval);
-        }
-    </script>
+/* ================= INIT ================= */
+sizeHero();buildFlock();sizeConfetti();sizeFinale();buildGallery();
+refreshMeta();renderMaker();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>renderMaker());
+if(reduceMotion)drawFlock();
+requestAnimationFrame(raf);
+</script>
 </body>
 </html>
